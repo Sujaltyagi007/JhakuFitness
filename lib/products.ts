@@ -1,0 +1,457 @@
+import { Category, Product } from "./types";
+
+export const categories: Category[] = [
+  {
+    id: "treadmills",
+    name: "Treadmills",
+    blurb: "Motorized and manual decks for every stride and budget.",
+  },
+  {
+    id: "spin-bikes",
+    name: "Spin Bikes",
+    blurb: "Studio-grade flywheels built for high-cadence training.",
+  },
+  {
+    id: "cross-trainers",
+    name: "Cross Trainers",
+    blurb: "Low-impact, full-body ellipticals for daily conditioning.",
+  },
+  {
+    id: "rowers",
+    name: "Rowers",
+    blurb: "Air-resistance rowing machines for engine-building work.",
+  },
+  {
+    id: "specialty",
+    name: "Specialty Equipment",
+    blurb: "Stair climbers, air bikes and ski ergs for focused training.",
+  },
+];
+
+export const products: Product[] = [
+  // ---------------- Treadmills ----------------
+  {
+    id: "bold-7000",
+    slug: "lp-bold-7000",
+    name: "LP - BOLD 7000",
+    category: "treadmills",
+    modelKind: "treadmill",
+    tagline: "The flagship deck for serious home and studio mileage.",
+    specialFeature: "Auto incline, 20 levels",
+    specs: {
+      Motor: "4/5 HP (8/10 HP peak)",
+      "Max Speed": "22 km/h",
+      "Max User Weight": "220 kg",
+      "Running Surface": "650 x 1550 mm",
+      Display: "LED screen",
+      Incline: "20 levels, motorized",
+      Drive: "G-Way belt drive",
+    },
+    featureBullets: [
+      "Motorized incline for hill and interval work",
+      "Extra-wide 650mm deck for a natural stride",
+      "Reinforced frame rated to 220kg",
+    ],
+    colorway: { body: "#1b1b1d", accent: "#c9a54e" },
+    featured: true,
+  },
+  {
+    id: "thunder-2000",
+    slug: "lp-thunder-2000",
+    name: "LP - THUNDER 2000",
+    category: "treadmills",
+    modelKind: "treadmill",
+    tagline: "Dependable daily-use power for home training.",
+    specialFeature: "Quick-touch speed keys",
+    specs: {
+      Motor: "3/4 HP (6/8 HP peak)",
+      "Max Speed": "18 km/h",
+      "Max User Weight": "150 kg",
+      "Running Surface": "500 x 1400 mm",
+      Display: "LED screen",
+      Incline: "12 levels, manual",
+      Drive: "Belt drive",
+    },
+    featureBullets: [
+      "Compact footprint for home gyms",
+      "Quick-touch keys for instant speed changes",
+      "Shock-absorbing deck cushioning",
+    ],
+    colorway: { body: "#2c2c2f", accent: "#c9a54e" },
+  },
+  {
+    id: "futurex",
+    slug: "lp-futurex",
+    name: "LP - FUTUREX",
+    category: "treadmills",
+    modelKind: "treadmill",
+    tagline: "A connected deck built around a large touch display.",
+    specialFeature: "10-inch touchscreen console",
+    specs: {
+      Motor: "4 HP (8 HP peak)",
+      "Max Speed": "20 km/h",
+      "Max User Weight": "180 kg",
+      "Running Surface": "550 x 1500 mm",
+      Display: "10-inch touchscreen",
+      Incline: "15 levels, motorized",
+      Drive: "G-Way belt drive",
+    },
+    featureBullets: [
+      "Touchscreen console with training programs",
+      "Bluetooth speaker and heart-rate sensors",
+      "Foldable frame with hydraulic assist",
+    ],
+    colorway: { body: "#1b1b1d", accent: "#e7c579" },
+    featured: true,
+  },
+  {
+    id: "solitaire",
+    slug: "lp-solitaire",
+    name: "LP - SOLITAIRE",
+    category: "treadmills",
+    modelKind: "treadmill",
+    tagline: "A refined, quiet-running deck for everyday walkers.",
+    specialFeature: "Whisper-quiet motor",
+    specs: {
+      Motor: "2.5 HP (5 HP peak)",
+      "Max Speed": "14 km/h",
+      "Max User Weight": "120 kg",
+      "Running Surface": "450 x 1300 mm",
+      Display: "LED screen",
+      Incline: "3 levels, manual",
+      Drive: "Belt drive",
+    },
+    featureBullets: [
+      "Low-noise motor suited to apartments",
+      "Slim folded profile for easy storage",
+      "Simple console for walking and light jogging",
+    ],
+    colorway: { body: "#e9e8e4", accent: "#a3813a" },
+  },
+  {
+    id: "silver-horse",
+    slug: "lp-silver-horse",
+    name: "LP - SILVER HORSE",
+    category: "treadmills",
+    modelKind: "treadmill",
+    tagline: "Heavy-duty commercial deck built for gym floors.",
+    specialFeature: "Commercial-grade frame",
+    specs: {
+      Motor: "5 HP (10 HP peak)",
+      "Max Speed": "22 km/h",
+      "Max User Weight": "250 kg",
+      "Running Surface": "660 x 1600 mm",
+      Display: "LED screen with USB charging",
+      Incline: "20 levels, motorized",
+      Drive: "G-Way belt drive",
+    },
+    featureBullets: [
+      "Rated for high-frequency commercial use",
+      "Reinforced side rails and wide deck",
+      "Built-in cooling for extended sessions",
+    ],
+    colorway: { body: "#1b1b1d", accent: "#9a9a9d" },
+  },
+  {
+    id: "moissanite",
+    slug: "lp-moissanite",
+    name: "LP - MOISSANITE",
+    category: "treadmills",
+    modelKind: "treadmill",
+    tagline: "A premium finish deck for statement home gyms.",
+    specialFeature: "Premium brushed finish",
+    specs: {
+      Motor: "4/5 HP (8/10 HP peak)",
+      "Max Speed": "20 km/h",
+      "Max User Weight": "200 kg",
+      "Running Surface": "550 x 1500 mm",
+      Display: "LED screen",
+      Incline: "15 levels, motorized",
+      Drive: "G-Way belt drive",
+    },
+    featureBullets: [
+      "Brushed metal console with gold detailing",
+      "Cushioned deck tuned for joint comfort",
+      "Foldable with soft-drop hydraulics",
+    ],
+    colorway: { body: "#2c2c2f", accent: "#e7c579" },
+  },
+  {
+    id: "curve",
+    slug: "lp-curve",
+    name: "LP - CURVE",
+    category: "treadmills",
+    modelKind: "treadmill",
+    tagline: "Non-motorized, self-powered training for functional athletes.",
+    specialFeature: "Curved, non-motorized deck",
+    specs: {
+      Motor: "Non-motorized (self-powered)",
+      "Max Speed": "User-driven",
+      "Max User Weight": "180 kg",
+      "Running Surface": "Curved slat deck",
+      Display: "LCD performance monitor",
+      Incline: "Fixed curve profile",
+      Drive: "Direct, no motor",
+    },
+    featureBullets: [
+      "Curved deck rewards natural sprint mechanics",
+      "No motor to fail — zero speed lag",
+      "Ideal for HIIT and functional training studios",
+    ],
+    colorway: { body: "#1b1b1d", accent: "#c9a54e" },
+  },
+
+  // ---------------- Spin Bikes ----------------
+  {
+    id: "sb-300-max",
+    slug: "sb-300-max",
+    name: "SB-300 MAX",
+    category: "spin-bikes",
+    modelKind: "spin-bike",
+    tagline: "The everyday studio bike for consistent indoor cycling.",
+    specialFeature: "18kg flywheel",
+    specs: {
+      Flywheel: "18 kg",
+      Resistance: "Felt-pad friction",
+      "Max User Weight": "130 kg",
+      Console: "LCD with cadence",
+      Adjustability: "4-way seat and handlebar",
+      Frame: "Steel, powder-coated",
+    },
+    featureBullets: [
+      "Heavy flywheel for a smooth, road-like feel",
+      "Four-way adjustable seat and bars",
+      "Transport wheels for easy repositioning",
+    ],
+    colorway: { body: "#1b1b1d", accent: "#c9a54e" },
+  },
+  {
+    id: "spin-bike-transformer",
+    slug: "spin-bike-transformer",
+    name: "SPIN BIKE TRANSFORMER",
+    category: "spin-bikes",
+    modelKind: "spin-bike",
+    tagline: "A convertible build that adapts to studio or home use.",
+    specialFeature: "Foldable frame",
+    specs: {
+      Flywheel: "20 kg",
+      Resistance: "Felt-pad friction",
+      "Max User Weight": "140 kg",
+      Console: "LCD with cadence",
+      Adjustability: "4-way seat and handlebar",
+      Frame: "Foldable steel frame",
+    },
+    featureBullets: [
+      "Folds flat for storage between classes",
+      "Toe-cage pedals with SPD compatibility",
+      "Stable base tuned for standing sprints",
+    ],
+    colorway: { body: "#2c2c2f", accent: "#e7c579" },
+    featured: true,
+  },
+  {
+    id: "spin-bike-magnactic",
+    slug: "spin-bike-magnactic",
+    name: "SPIN BIKE MAGNACTIC",
+    category: "spin-bikes",
+    modelKind: "spin-bike",
+    tagline: "Magnetic resistance for a near-silent, low-maintenance ride.",
+    specialFeature: "Magnetic resistance system",
+    specs: {
+      Flywheel: "22 kg (magnetic)",
+      Resistance: "Magnetic, dial-controlled",
+      "Max User Weight": "150 kg",
+      Console: "Digital with heart-rate grip sensors",
+      Adjustability: "4-way seat and handlebar",
+      Frame: "Steel, powder-coated",
+    },
+    featureBullets: [
+      "Silent magnetic resistance, no pad wear",
+      "Smooth micro-adjustable tension dial",
+      "Heart-rate grip sensors on the handlebar",
+    ],
+    colorway: { body: "#1b1b1d", accent: "#c9a54e" },
+  },
+
+  // ---------------- Cross Trainers ----------------
+  {
+    id: "cross-trainer-coaster",
+    slug: "cross-trainer-coaster",
+    name: "CROSS TRAINER COASTER",
+    category: "cross-trainers",
+    modelKind: "cross-trainer",
+    tagline: "A smooth entry point into low-impact cardio.",
+    specialFeature: "20-inch stride length",
+    specs: {
+      "Stride Length": "20 inches",
+      Resistance: "8 levels, magnetic",
+      "Max User Weight": "120 kg",
+      Display: "LCD console",
+      "Flywheel Position": "Rear-drive",
+      Frame: "Steel, powder-coated",
+    },
+    featureBullets: [
+      "Rear-drive layout for a natural elliptical path",
+      "Padded, non-slip pedals",
+      "Compact enough for home corners",
+    ],
+    colorway: { body: "#e9e8e4", accent: "#a3813a" },
+  },
+  {
+    id: "cross-trainer-chrome",
+    slug: "cross-trainer-chrome",
+    name: "CROSS TRAINER CHROME",
+    category: "cross-trainers",
+    modelKind: "cross-trainer",
+    tagline: "A heavier flywheel and longer stride for taller users.",
+    specialFeature: "22-inch stride, chrome accents",
+    specs: {
+      "Stride Length": "22 inches",
+      Resistance: "16 levels, magnetic",
+      "Max User Weight": "150 kg",
+      Display: "LCD console with pulse grips",
+      "Flywheel Position": "Front-drive",
+      Frame: "Steel with chrome detailing",
+    },
+    featureBullets: [
+      "Front-drive flywheel for a fuller stride",
+      "Chrome-finished frame accents",
+      "16-level magnetic resistance range",
+    ],
+    colorway: { body: "#1b1b1d", accent: "#9a9a9d" },
+  },
+
+  // ---------------- Rowers ----------------
+  {
+    id: "air-rower-concept-2",
+    slug: "air-rower-concept-2",
+    name: "AIR ROWER CONCEPT 2",
+    category: "rowers",
+    modelKind: "rower",
+    tagline: "Air-resistance rowing that scales with your effort.",
+    specialFeature: "Air-resistance flywheel",
+    specs: {
+      Resistance: "Air, self-adjusting",
+      "Rail Length": "Standard slide rail",
+      "Max User Weight": "150 kg",
+      Monitor: "Digital performance monitor",
+      Frame: "Foldable, splits for storage",
+    },
+    featureBullets: [
+      "Resistance scales naturally with pull strength",
+      "Splits in two for compact storage",
+      "Performance monitor tracks pace and distance",
+    ],
+    colorway: { body: "#1b1b1d", accent: "#c9a54e" },
+    featured: true,
+  },
+  {
+    id: "air-rower-argentina",
+    slug: "air-rower-argentina",
+    name: "AIR ROWER ARGENTINA",
+    category: "rowers",
+    modelKind: "rower",
+    tagline: "A sturdier build for high-frequency studio rowing.",
+    specialFeature: "Reinforced slide rail",
+    specs: {
+      Resistance: "Air, self-adjusting",
+      "Rail Length": "Extended slide rail",
+      "Max User Weight": "160 kg",
+      Monitor: "Digital performance monitor",
+      Frame: "Fixed studio frame",
+    },
+    featureBullets: [
+      "Extended rail for longer leg drive",
+      "Built for continuous studio-class use",
+      "Wide, stable seat rail",
+    ],
+    colorway: { body: "#2c2c2f", accent: "#e7c579" },
+  },
+
+  // ---------------- Specialty ----------------
+  {
+    id: "skii-machine",
+    slug: "skii-machine",
+    name: "SKII MACHINE",
+    category: "specialty",
+    modelKind: "ski-machine",
+    tagline: "Full-body, low-impact conditioning through a skiing motion.",
+    specialFeature: "Independent dual resistance arms",
+    specs: {
+      Resistance: "Dual-cord, adjustable",
+      Motion: "Independent arm and leg drive",
+      "Max User Weight": "140 kg",
+      Monitor: "Digital performance monitor",
+      Frame: "Wall-mountable or floor stand",
+    },
+    featureBullets: [
+      "Trains upper and lower body together",
+      "Independent arms for unilateral work",
+      "Small footprint, wall-mount option",
+    ],
+    colorway: { body: "#1b1b1d", accent: "#c9a54e" },
+  },
+  {
+    id: "stair-master",
+    slug: "stair-master",
+    name: "STAIR MASTER",
+    category: "specialty",
+    modelKind: "stair-master",
+    tagline: "Continuous step conditioning for lower-body endurance.",
+    specialFeature: "Independent revolving steps",
+    specs: {
+      Resistance: "Hydraulic, multi-level",
+      "Step Height": "Adjustable",
+      "Max User Weight": "150 kg",
+      Display: "LED console",
+      Frame: "Steel, commercial-grade",
+    },
+    featureBullets: [
+      "Independent steps for a natural climb pattern",
+      "Multi-level hydraulic resistance",
+      "Side rails for stability at high intensity",
+    ],
+    colorway: { body: "#1b1b1d", accent: "#9a9a9d" },
+  },
+  {
+    id: "air-bull-lp-668",
+    slug: "air-bike-air-bull-lp-668",
+    name: "AIR BIKE AIR BULL LP-668",
+    category: "specialty",
+    modelKind: "air-bike",
+    tagline: "Fan-resistance training for all-out conditioning work.",
+    specialFeature: "Dual-action fan resistance",
+    specs: {
+      Resistance: "Air fan, self-adjusting",
+      Drive: "Dual-action arms and pedals",
+      "Max User Weight": "150 kg",
+      Console: "LCD with watts and calories",
+      Frame: "Steel, powder-coated",
+    },
+    featureBullets: [
+      "Fan resistance scales with effort, no limits",
+      "Dual-action handles engage the upper body",
+      "Built for interval and conditioning workouts",
+    ],
+    colorway: { body: "#1b1b1d", accent: "#c9a54e" },
+    featured: true,
+  },
+];
+
+export function getProductBySlug(slug: string) {
+  return products.find((p) => p.slug === slug);
+}
+
+export function getProductsByCategory(category: string) {
+  return products.filter((p) => p.category === category);
+}
+
+export function getRelated(product: Product, count = 3) {
+  return products
+    .filter((p) => p.category === product.category && p.id !== product.id)
+    .slice(0, count);
+}
+
+export function getCategory(id: string) {
+  return categories.find((c) => c.id === id);
+}

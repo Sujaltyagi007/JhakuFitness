@@ -1,0 +1,97 @@
+@import "tailwindcss";
+
+:root {
+  --ink: #1b1b1d;
+  --ink-soft: #2c2c2f;
+  --gold: #c9a54e;
+  --gold-bright: #e7c579;
+  --gold-deep: #a3813a;
+  --paper: #f4f4f2;
+  --paper-dim: #e9e8e4;
+  --steel: #6b6b6e;
+  --steel-light: #9a9a9d;
+  --white: #ffffff;
+  --line: rgba(27, 27, 29, 0.1);
+}
+
+@theme inline {
+  --color-ink: var(--ink);
+  --color-ink-soft: var(--ink-soft);
+  --color-gold: var(--gold);
+  --color-gold-bright: var(--gold-bright);
+  --color-gold-deep: var(--gold-deep);
+  --color-paper: var(--paper);
+  --color-paper-dim: var(--paper-dim);
+  --color-steel: var(--steel);
+  --color-steel-light: var(--steel-light);
+  --font-display: var(--font-outfit);
+  --font-body: var(--font-inter);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-body), ui-sans-serif, system-ui, sans-serif;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-display), ui-sans-serif, system-ui, sans-serif;
+}
+
+::selection {
+  background: var(--gold);
+  color: var(--ink);
+}
+
+/* Thin gold scrollbar accent */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--paper);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--steel-light);
+  border-radius: 999px;
+}
+
+@media (max-width: 768px) {
+  * {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  *::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+.text-balance {
+  text-wrap: balance;
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

@@ -1,0 +1,6 @@
+lib/contract.json linguist-generated
+lib/contract.d.ts linguist-generated
+lib/ops.json linguist-generated
+lib/migration.json linguist-generated
+migrations/snapshots/**/contract.json linguist-generated
+migrations/snapshots/**/contract.d.ts linguist-generated
