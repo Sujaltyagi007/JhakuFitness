@@ -1,8 +1,8 @@
 import { Product } from "@/lib/types";
-import ProductCard from "@/components/products/ProductCard";
+import ProductCard, { type CardProduct } from "@/components/products/ProductCard";
 import { SectionHeading } from "@/components/ui/Primitives";
 
-export default function RelatedProducts({ products }: { products: Product[] }) {
+export default function RelatedProducts({ products }: { products: (Product | CardProduct)[] }) {
   if (products.length === 0) return null;
   return (
     <section className="mt-20">
@@ -15,3 +15,4 @@ export default function RelatedProducts({ products }: { products: Product[] }) {
     </section>
   );
 }
+

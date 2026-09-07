@@ -2,8 +2,7 @@
 
 import { Canvas } from "@react-three/fiber";
 import { OrbitControls, MeshReflectorMaterial, ContactShadows } from "@react-three/drei";
-import { Suspense, ReactNode, RefObject } from "react";
-import type { OrbitControls as OrbitControlsImpl } from "three-stdlib";
+import { Suspense, ReactNode, Ref, ComponentRef } from "react";
 import { useIsCompact } from "@/lib/useIsCompact";
 
 interface SceneProps {
@@ -17,7 +16,7 @@ interface SceneProps {
   maxPolarAngle?: number;
   showFloor?: boolean;
   className?: string;
-  controlsRef?: RefObject<OrbitControlsImpl | null>;
+  controlsRef?: Ref<ComponentRef<typeof OrbitControls>>;
 }
 
 function Lights() {
@@ -106,9 +105,7 @@ export default function Scene({
           {children}
           {showFloor && <Floor compact={compact} />}
         </Suspense>
-        <OrbitControls
-          ref={controlsRef}
-          enablePan={false}
+        <OrbitControls ref={controlsRef} enablePan={false}
           enableZoom={enableZoom}
           autoRotate={autoRotate}
           autoRotateSpeed={autoRotateSpeed}

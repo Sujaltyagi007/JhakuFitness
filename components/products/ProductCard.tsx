@@ -14,15 +14,22 @@ export interface CardProduct {
   tagline: string;
   specialFeature: string;
   modelKind?: ModelKind;
-  featured: boolean;
-  colorwayBody: string;
-  colorwayAccent: string;
+  featured?: boolean;
+  colorwayBody?: string;
+  colorwayAccent?: string;
+  colorway?: {
+    body: string;
+    accent: string;
+  };
   imageUrl?: string | null;
 }
 
 export default function ProductCard({ product }: { product: CardProduct }) {
   const ref = useRef<HTMLDivElement>(null);
   const [tilt, setTilt] = useState({ x: 0, y: 0 });
+
+  const bodyColor = product.colorwayBody ?? product.colorway?.body ?? "#1c1c1f";
+  const accentColor = product.colorwayAccent ?? product.colorway?.accent ?? "#e2b13c";
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     const el = ref.current;
@@ -49,7 +56,7 @@ export default function ProductCard({ product }: { product: CardProduct }) {
         <div
           className="relative flex aspect-4/3 items-center justify-center overflow-hidden"
           style={{
-            background: `radial-gradient(120% 120% at 30% 20%, ${product.colorwayAccent}22, transparent 60%), linear-gradient(160deg, ${product.colorwayBody}, #2c2c2f)`,
+            background: `radial-gradient(120% 120% at 30% 20%, ${accentColor}22, transparent 60%), linear-gradient(160deg, ${bodyColor}, #2c2c2f)`,
           }}
         >
           {product.imageUrl ? (

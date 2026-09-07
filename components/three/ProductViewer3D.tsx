@@ -1,8 +1,7 @@
 "use client";
 
-import { useRef, useState } from "react";
-import { Html } from "@react-three/drei";
-import type { OrbitControls as OrbitControlsImpl } from "three-stdlib";
+import { useRef, useState, ComponentRef } from "react";
+import { Html, OrbitControls } from "@react-three/drei";
 import * as THREE from "three";
 import Scene from "./Scene";
 import EquipmentModel, { Colorway } from "./models/EquipmentModels";
@@ -93,7 +92,7 @@ export default function ProductViewer3D({
   colorway: Colorway;
   className?: string;
 }) {
-  const controlsRef = useRef<OrbitControlsImpl | null>(null);
+  const controlsRef = useRef<ComponentRef<typeof OrbitControls> | null>(null);
   const [showHotspots, setShowHotspots] = useState(true);
 
   const zoom = (dir: 1 | -1) => {
