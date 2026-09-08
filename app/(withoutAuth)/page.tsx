@@ -1,11 +1,16 @@
 import { prisma } from "@/lib/prisma";
 import type { ModelKind } from "@/lib/types";
 import Hero from "@/components/home/Hero";
+import BrandMarquee from "@/components/home/BrandMarquee";
 import CategoryNav from "@/components/home/CategoryNav";
+import InteractiveStudioShowcase from "@/components/home/InteractiveStudioShowcase";
 import FeaturedCarousel from "@/components/home/FeaturedCarousel";
+import GymCalculator from "@/components/home/GymCalculator";
 import ValueProps from "@/components/home/ValueProps";
+import ProcessTimeline from "@/components/home/ProcessTimeline";
 import Testimonials from "@/components/home/Testimonials";
 import LocationSection from "@/components/home/LocationSection";
+import InteractiveFaq from "@/components/home/InteractiveFaq";
 import Newsletter from "@/components/home/Newsletter";
 
 export const revalidate = 60; // ISR: revalidate every 60 seconds
@@ -52,15 +57,20 @@ export default async function HomePage() {
         subtext={settingsMap["hero.subtext"] ?? "Premium equipment for homes, studios and commercial floors across Delhi."}
         locationBadge={settingsMap["hero.locationBadge"] ?? "Showroom open in Alipur, Delhi"}
       />
+      <BrandMarquee />
       <CategoryNav categories={categories} />
+      <InteractiveStudioShowcase />
       <FeaturedCarousel products={featured} />
+      <GymCalculator phone={settingsMap["site.phone"] ?? "+91 93110 37556"} />
       <ValueProps items={valueProps} />
+      <ProcessTimeline />
       <Testimonials items={testimonials} />
       <LocationSection
-        address={settingsMap["location.address"] ?? "Near Santh Gyaneshware School, Alipur, Delhi 110036"}
-        phone={settingsMap["location.phone"] ?? "9311037556"}
-        hours={settingsMap["location.hours"] ?? "Mon – Sun, 10:00 AM – 8:00 PM"}
+        address={settingsMap["site.address"] ?? "Near Santh Gyaneshware School, Alipur, Delhi 110036"}
+        phone={settingsMap["site.phone"] ?? "+91 93110 37556"}
+        hours={settingsMap["site.hours"] ?? "Mon – Sun, 10:00 AM – 8:00 PM"}
       />
+      <InteractiveFaq />
       <Newsletter
         heading={settingsMap["newsletter.heading"] ?? "New arrivals and dealer offers"}
         subtext={settingsMap["newsletter.subtext"] ?? "Join our list for new models, seasonal offers and studio setup tips."}

@@ -25,7 +25,7 @@ export default function LocationSection({
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-60px" }}
           transition={{ duration: 0.5 }}>
-          <h2 className="font-display text-3xl font-semibold tracking-tight text-ink sm:text-4xl">
+          <h2 className="font-display text-3xl font-semibold tracking-tight text-theme-text sm:text-4xl">
             Visit the Jakhu showroom
           </h2>
           <p className="mt-4 max-w-md text-base leading-relaxed text-steel">
@@ -36,17 +36,17 @@ export default function LocationSection({
           <div className="mt-8 space-y-4">
             <div className="flex items-start gap-3">
               <MapPin size={18} className="mt-0.5 shrink-0 text-gold-deep" />
-              <p className="text-sm text-ink">{address}</p>
+              <p className="text-sm text-theme-text">{address}</p>
             </div>
             <div className="flex items-start gap-3">
               <Phone size={18} className="mt-0.5 shrink-0 text-gold-deep" />
-              <a href={`tel:${phone.replace(/\D/g, '')}`} className="text-sm text-ink hover:text-gold-deep">
+              <a href={`tel:${phone.replace(/\D/g, '')}`} className="text-sm text-theme-text hover:text-gold-deep">
                 {phone}
               </a>
             </div>
             <div className="flex items-start gap-3">
               <Clock size={18} className="mt-0.5 shrink-0 text-gold-deep" />
-              <p className="text-sm text-ink">{hours}</p>
+              <p className="text-sm text-theme-text">{hours}</p>
             </div>
           </div>
 
@@ -60,7 +60,7 @@ export default function LocationSection({
           whileInView={{ opacity: 1, scale: 1 }}
           viewport={{ once: true, margin: "-60px" }}
           transition={{ duration: 0.5 }}
-          className="h-85 overflow-hidden rounded-2xl border border-ink/10 sm:h-100"
+          className="h-85 overflow-hidden rounded-2xl border border-theme-border sm:h-100"
         >
           <iframe
             title="Jakhu Fitness location"

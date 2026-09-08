@@ -25,8 +25,7 @@ export default function ValueProps({ items }: ValuePropsProps) {
   return (
     <section className="py-20 sm:py-24">
       <Container>
-        <SectionHeading
-          title="Why gyms and homes choose Jakhu"
+        <SectionHeading title="Why gyms and homes choose Jakhu"
           description="Every piece of equipment we sell is backed by service, not just a warranty card."
         />
         <div className="mt-12 grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
@@ -42,10 +41,10 @@ export default function ValueProps({ items }: ValuePropsProps) {
                 viewport={{ once: true, margin: "-60px" }}
                 transition={{ duration: 0.5, delay: i * 0.08 }}
               >
-                <div className="flex h-11 w-11 items-center justify-center rounded-full bg-ink text-gold">
+                <div className="flex h-11 w-11 items-center justify-center rounded-full bg-theme-surface border border-theme-border text-gold shadow-sm">
                   <Icon size={19} />
                 </div>
-                <h3 className="mt-5 font-display text-base font-semibold text-ink">{v.title}</h3>
+                <h3 className="mt-5 font-display text-base font-semibold text-theme-text">{v.title}</h3>
                 <p className="mt-2 text-sm leading-relaxed text-steel">{v.bodyText}</p>
               </motion.div>
             );

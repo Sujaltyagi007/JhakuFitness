@@ -5,12 +5,13 @@ import { useState, useEffect } from "react";
 import ProductsTab from "./tabs/ProductsTab";
 import InventoryTab from "./tabs/InventoryTab";
 import AnalyticsTab from "./tabs/AnalyticsTab";
+import MediaTab from "./tabs/MediaTab";
 import AdminShell, { AdminNavItem } from "./AdminShell";
-import { Package, Inbox, FileSpreadsheet, Warehouse, BarChart2, Layout } from "lucide-react";
+import { Package, Inbox, FileSpreadsheet, Warehouse, BarChart2, Layout, Image } from "lucide-react";
 
 interface AdminDashboardProps { onLogout: () => void }
 
-type TabId = "products" | "invoice" | "leads" | "inventory" | "analytics";
+type TabId = "products" | "invoice" | "leads" | "inventory" | "analytics" | "media";
 
 export default function AdminDashboard({ onLogout }: AdminDashboardProps) {
   const [activeTab, setActiveTab] = useState<TabId>("analytics");
@@ -31,6 +32,7 @@ export default function AdminDashboard({ onLogout }: AdminDashboardProps) {
     { id: "content", label: "Content", icon: Layout, href: "/admin/content" },
     { id: "invoice", label: "Invoices", icon: FileSpreadsheet },
     { id: "leads", label: "Leads", icon: Inbox },
+    { id: "media", label: "Media", icon: Image },
   ];
 
   return (
@@ -40,6 +42,7 @@ export default function AdminDashboard({ onLogout }: AdminDashboardProps) {
       {activeTab === "inventory" && <InventoryTab />}
       {activeTab === "invoice" && <InvoiceTab />}
       {activeTab === "leads" && <LeadsTab />}
+      {activeTab === "media" && <MediaTab />}
     </AdminShell>
   );
 }

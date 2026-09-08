@@ -66,12 +66,12 @@ function StatTicker({
     >
       <Icon size={14} className="shrink-0 text-gold sm:h-4 sm:w-4" />
       <div className="min-w-0">
-        <p className="text-[8px] sm:text-[10px] font-medium uppercase tracking-wider sm:tracking-widest text-white/40 truncate">
+        <p className="text-[8px] sm:text-[10px] font-medium uppercase tracking-wider sm:tracking-widest text-white/60 truncate">
           {label}
         </p>
         <p className="font-display text-sm sm:text-lg font-semibold text-white leading-none mt-0.5">
           {current}
-          <span className="ml-0.5 text-[10px] sm:text-xs font-normal text-white/50">{unit}</span>
+          <span className="ml-0.5 text-[10px] sm:text-xs font-normal text-white/60">{unit}</span>
         </p>
       </div>
     </motion.div>
@@ -87,14 +87,14 @@ function ScrollIndicator() {
       transition={{ delay: 2, duration: 0.8 }}
       className="absolute bottom-6 left-1/2 -translate-x-1/2 hidden sm:flex flex-col items-center gap-2"
     >
-      <span className="text-[10px] font-medium uppercase tracking-[0.2em] text-white/30">
+      <span className="text-[10px] font-medium uppercase tracking-[0.2em] text-white/60">
         Scroll
       </span>
       <motion.div
         animate={{ y: [0, 6, 0] }}
         transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
       >
-        <ChevronDown size={16} className="text-white/30" />
+        <ChevronDown size={16} className="text-white/60" />
       </motion.div>
     </motion.div>
   );
@@ -111,7 +111,7 @@ interface HeroProps {
 export default function Hero({ headline, subtext, locationBadge }: HeroProps) {
   const headlineLines = headline.split("\n");
   return (
-    <section className="relative flex min-h-screen flex-col overflow-hidden bg-ink">
+    <section className="relative flex min-h-screen flex-col overflow-hidden bg-theme-surface">
 
       {/* ── Full-screen 3D treadmill background ── */}
       <div className="pointer-events-none absolute inset-0 z-0">
@@ -150,10 +150,8 @@ export default function Hero({ headline, subtext, locationBadge }: HeroProps) {
         }}
       />
 
-      {/* ── Main content: On mobile, all text is anchored at the bottom; on desktop, vertically centered on left ── */}
-      <div className="relative z-20 flex min-h-dvh flex-1 flex-col justify-end sm:justify-center px-5 pt-20 pb-6 sm:px-8 sm:py-28 lg:px-16 xl:px-24">
-        <div className="max-w-xl">
-          {/* location badge */}
+      <div className="relative z-20 flex min-h-dvh flex-1 flex-col justify-end sm:justify-baseline sm:items-baseline px-5 pt-20 pb-6 sm:px-8 sm:py-18 lg:px-16 xl:px-24">
+        <div className="max-w-xl ">
           <motion.div
             initial={{ opacity: 0, x: -16 }}
             animate={{ opacity: 1, x: 0 }}
@@ -223,7 +221,7 @@ export default function Hero({ headline, subtext, locationBadge }: HeroProps) {
             <Button
               href="/contact"
               variant="ghost"
-              className="flex-1 sm:flex-initial px-4! py-2.5! sm:px-6! sm:py-3! text-xs sm:text-sm border-white/18! text-white! hover:border-white/45! hover:bg-white/5!"
+              className="flex-1 sm:flex-initial px-4! py-2.5! sm:px-6! sm:py-3! text-xs sm:text-sm border-white/20! text-white! hover:border-gold! hover:text-white!"
             >
               Get a quote
             </Button>

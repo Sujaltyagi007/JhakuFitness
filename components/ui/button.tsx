@@ -11,9 +11,9 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(({ classN
   const variantStyles = {
     default: "bg-gold text-ink font-semibold hover:bg-gold-bright shadow-sm",
     gold: "bg-gold text-ink font-semibold hover:bg-gold-bright shadow-sm",
-    secondary: "bg-ink text-white hover:bg-ink-soft",
-    outline: "border border-ink/15 bg-transparent hover:bg-ink/5 text-ink",
-    ghost: "hover:bg-ink/5 text-ink",
+    secondary: "bg-theme-text text-theme-bg hover:opacity-90",
+    outline: "border border-theme-border bg-transparent hover:bg-theme-surface-hover text-theme-text",
+    ghost: "hover:bg-theme-surface-hover text-theme-text",
     destructive: "bg-red-600 text-white hover:bg-red-700",
   }[variant];
 

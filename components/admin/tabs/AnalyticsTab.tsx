@@ -19,6 +19,7 @@ import {
   Loader2,
   type LucideIcon,
 } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface DbCategory { id: string; name: string }
 interface DbProduct { id: string; categoryId: string; featured: boolean }
@@ -180,8 +181,17 @@ export default function AnalyticsTab() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-24 gap-2 text-steel">
-        <Loader2 size={20} className="animate-spin" /> Loading analytics…
+      <div className="space-y-6">
+        <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+          <Skeleton className="h-28 w-full rounded-xl" />
+          <Skeleton className="h-28 w-full rounded-xl" />
+          <Skeleton className="h-28 w-full rounded-xl" />
+          <Skeleton className="h-28 w-full rounded-xl" />
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <Skeleton className="h-64 w-full rounded-xl" />
+          <Skeleton className="h-64 w-full rounded-xl" />
+        </div>
       </div>
     );
   }

@@ -8,8 +8,7 @@ export const revalidate = 60;
 
 export const metadata: Metadata = {
   title: "Product Catalog | Jakhu Fitness",
-  description:
-    "Browse treadmills, spin bikes, cross trainers, rowers and specialty equipment from Jakhu Fitness, Delhi.",
+  description: "Browse treadmills, spin bikes, cross trainers, rowers and specialty equipment from Jakhu Fitness, Delhi."
 };
 
 export default async function ProductsPage() {
@@ -19,17 +18,16 @@ export default async function ProductsPage() {
   ]);
 
   return (
-    <div className="pb-24 pt-36">
+    <div className="bg-theme-bg pb-24 pt-28 sm:pt-36">
       <Container>
-        <SectionHeading
-          title="The full equipment range"
-          description="Every deck, bike and rower we carry, built for home setups, boutique studios and full commercial floors."
+        <SectionHeading eyebrow="Commercial & Home Catalog" title="The Full Equipment Range"
+          description="Every deck, plate-loaded unit, cable crossover, and rack built for boutique studios, commercial floors, and athletic home setups."
         />
         <div className="mt-10">
-          <Suspense fallback={<div className="py-24 text-center text-steel">Loading catalog…</div>}>
-            <ProductGrid 
-              products={products as unknown as DbProduct[]} 
-              categories={categories as unknown as DbCategory[]} 
+          <Suspense fallback={<div className="py-24 text-center text-white/50">Loading catalog…</div>}>
+            <ProductGrid
+              products={products as unknown as DbProduct[]}
+              categories={categories as unknown as DbCategory[]}
             />
           </Suspense>
         </div>

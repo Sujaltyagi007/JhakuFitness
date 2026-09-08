@@ -1,14 +1,14 @@
 "use client";
-
-import { useCallback, useEffect, useRef, useState } from "react";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
+import { motion } from "motion/react";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { AlertTriangle, Check, Loader2, RefreshCw, Save } from "lucide-react";
-import { useDebouncedCallback } from "@/lib/useDebouncedCallback";
 import { toast } from "@/components/ui/Toast";
-
-// ─── types ────────────────────────────────────────────────────────────────────
+import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
+import CountrieCodeBtn from "@/components/ui/CountrieCodeBtn";
+import { COUNTRIES, type Country } from "@/lib/hooks/Countrielist";
+import { AlertTriangle, Loader2, RefreshCw, Save } from "lucide-react";
+import { Fragment, useCallback, useEffect, useMemo, useRef, useState, memo } from "react";
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 
 interface SiteSetting { key: string; value: string }
 interface ContentBlock {
@@ -21,94 +21,95 @@ interface ContentBlock {
 
 const AUTOSAVE_DELAY_MS = 900;
 
-// ─── helpers ─────────────────────────────────────────────────────────────────
 
 function Textarea({ value, onChange, rows = 3 }: { value: string; onChange: (v: string) => void; rows?: number }) {
   return (
-    <textarea      value={value}
+    <textarea value={value}
       onChange={(e) => onChange(e.target.value)}
       rows={rows}
+      maxLength={300}
       className="mt-1 w-full rounded-lg border border-ink/15 bg-white px-3 py-2 text-sm text-ink outline-none focus:border-gold resize-none leading-relaxed"
     />
   );
 }
 
-type SaveState = "idle" | "saving" | "saved" | "error";
-
-function SaveIndicator({ state, error, onRetry }: { state: SaveState; error?: string; onRetry: () => void }) {
-  if (state === "saving") return <span className="inline-flex items-center gap-1 text-xs text-steel"><Loader2 size={12} className="animate-spin" /> Saving…</span>;
-  if (state === "saved") return <span className="inline-flex items-center gap-1 text-xs text-emerald-600"><Check size={12} /> Saved</span>;
-  if (state === "error") {
-    return (
-      <button onClick={onRetry} className="inline-flex items-center gap-1 text-xs text-red-600 hover:underline" title={error}>
-        <AlertTriangle size={12} /> Save failed — retry
-      </button>
-    );
-  }
-  return null;
-}
-
-// ─── section: site settings ──────────────────────────────────────────────────
-
-function SettingField({ label, settingKey, value, multiline, onChange, onSave, saveState, error }: {
+const SettingField = memo(function SettingField({ label, settingKey, value, multiline, onChange, className }: {
   label: string;
   settingKey: string;
   value: string;
   multiline?: boolean;
   onChange: (key: string, value: string) => void;
-  onSave: (key: string) => void;
-  saveState: SaveState;
-  error?: string;
+  className?: string;
 }) {
   return (
-    <div>
+    <div className={`${className}`} >
       <div className="flex items-center justify-between">
-        <label className="text-xs font-semibold text-steel">{label}</label>
-        <SaveIndicator state={saveState} error={error} onRetry={() => onSave(settingKey)} />
+        <label className="text-xs px-3 font-semibold text-steel">{label}</label>
       </div>
       {multiline ? (
         <Textarea value={value} onChange={(v) => onChange(settingKey, v)} />
       ) : (
-        <Input value={value} onChange={(e) => onChange(settingKey, e.target.value)} className="mt-1" />
+        <Input value={value} onChange={(e) => onChange(settingKey, e.target.value)} minLength={3} maxLength={50} className="mt-1" />
       )}
-      <Button
-        size="sm"
-        variant="outline"
-        className="mt-2 h-7 gap-1.5 text-xs"
-        onClick={() => onSave(settingKey)}
-        disabled={saveState === "saving"}
-      >
-        <Save size={12} />
-        Save now
-      </Button>
     </div>
   );
-}
+});
 
-// ─── section: content block ───────────────────────────────────────────────────
-
-function BlockField({ label, block, onChange, onSave, saveState, error }: {
+const PhoneSettingField = memo(function PhoneSettingField({ label, settingKey, value, onChange, className }: {
   label: string;
-  block: ContentBlock;
+  settingKey: string;
+  value: string;
+  onChange: (key: string, value: string) => void;
+  className?: string;
+}) {
+  const defaultCountry = COUNTRIES.find((c) => c.code === "IN") || COUNTRIES[0];
+  const [country, setCountry] = useState<Country>(defaultCountry);
+
+  return (
+    <div className={`${className}`} >
+      <div className="flex items-center justify-between">
+        <label className="text-xs px-3 font-semibold text-steel">{label}</label>
+      </div>
+      <div className="mt-1 flex h-11 w-full items-stretch overflow-hidden rounded-xl border border-ink/15 bg-white focus-within:border-gold focus-within:ring-2 focus-within:ring-gold/30 transition-colors">
+        <CountrieCodeBtn
+          value={country}
+          onChange={setCountry}
+          autoDetected={false}
+          onManualChange={() => { }}
+          className="bg-transparent! border-0! border-r! border-ink/15! rounded-none! px-3.5! py-2! text-sm! text-ink! hover:bg-ink/5!"
+        />
+        <input
+          value={value}
+          onChange={(e) => onChange(settingKey, e.target.value)}
+          className="w-full bg-transparent px-3.5 py-2 text-sm text-ink outline-none placeholder:text-steel/70 disabled:cursor-not-allowed disabled:opacity-50"
+        />
+      </div>
+    </div>
+  );
+});
+
+const BlockField = memo(function BlockField({ label, block, onChange }: {
+  label: string; block: ContentBlock;
   onChange: (slug: string, field: "title" | "bodyText", value: string) => void;
-  onSave: (slug: string) => void;
-  saveState: SaveState;
-  error?: string;
 }) {
   return (
     <div className="rounded-xl border border-ink/10 p-4 space-y-3">
       <div className="flex items-center justify-between">
         <h4 className="text-xs font-bold uppercase tracking-wider text-steel">{label}</h4>
-        <div className="flex items-center gap-2">
-          <SaveIndicator state={saveState} error={error} onRetry={() => onSave(block.slug)} />
-          <Button size="sm" variant="outline" className="h-7 gap-1.5 text-xs" onClick={() => onSave(block.slug)} disabled={saveState === "saving"}>
-            <Save size={12} /> Save now
-          </Button>
-        </div>
       </div>
       <div>
         <label className="text-xs font-semibold text-steel">Title / Author</label>
-        <Input value={block.title ?? ""} onChange={(e) => onChange(block.slug, "title", e.target.value)} className="mt-1" />
+        <Input
+          value={block.title ?? ""}
+          onChange={(e) => {
+            let val = e.target.value;
+            val = val.replace(/^\s+/, '').replace(/[0-9]/g, '');
+            onChange(block.slug, "title", val);
+          }}
+          minLength={3}
+          maxLength={50}
+          className="mt-1"
+        />
       </div>
       <div>
         <label className="text-xs font-semibold text-steel">Body Text</label>
@@ -116,19 +117,16 @@ function BlockField({ label, block, onChange, onSave, saveState, error }: {
       </div>
     </div>
   );
-}
-
-// ─── main component ───────────────────────────────────────────────────────────
+});
 
 export default function ContentTab() {
   const [settings, setSettings] = useState<Record<string, string>>({});
   const [blocks, setBlocks] = useState<ContentBlock[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
-  const [saveStates, setSaveStates] = useState<Record<string, SaveState>>({});
-  const [saveErrors, setSaveErrors] = useState<Record<string, string>>({});
-
-  // Last server-confirmed values, used to roll back an optimistic edit if the save fails.
+  const [isSavingAll, setIsSavingAll] = useState(false);
+  const [activeTab, setActiveTab] = useState("site-info");
+  const [shakeButton, setShakeButton] = useState(false);
   const confirmedSettings = useRef<Record<string, string>>({});
   const confirmedBlocks = useRef<Record<string, ContentBlock>>({});
 
@@ -144,7 +142,6 @@ export default function ContentTab() {
       const blockList = data.blocks as ContentBlock[];
       const blockMap: Record<string, ContentBlock> = {};
       for (const b of blockList) blockMap[b.slug] = b;
-
       confirmedSettings.current = settingsMap;
       confirmedBlocks.current = blockMap;
       setSettings(settingsMap);
@@ -158,76 +155,128 @@ export default function ContentTab() {
 
   useEffect(() => { fetchContent(); }, [fetchContent]);
 
-  const saveSetting = useCallback(async (key: string) => {
-    setSaveStates((p) => ({ ...p, [key]: "saving" }));
-    setSaveErrors((p) => { const rest = { ...p }; delete rest[key]; return rest; });
-    const value = settings[key] ?? "";
-    try {
-      const res = await fetch("/api/admin/content", {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ type: "setting", key, value }),
-      });
+  const handleSettingChange = useCallback((key: string, value: string) => {
+    setSettings((p) => ({ ...p, [key]: value }));
+  }, []);
 
-      if (!res.ok) throw new Error(`Server rejected the save (${res.status})`);
-      confirmedSettings.current[key] = value;
-      setSaveStates((p) => ({ ...p, [key]: "saved" }));
-      toast.success("Setting saved successfully");
-    } catch (err) {
-      // Roll back the optimistic edit to the last known-good value.
-      setSettings((p) => ({ ...p, [key]: confirmedSettings.current[key] ?? "" }));
-      setSaveStates((p) => ({ ...p, [key]: "error" }));
-      const msg = err instanceof Error ? err.message : "Save failed";
-      setSaveErrors((p) => ({ ...p, [key]: msg }));
-      toast.error(msg);
-    }
-  }, [settings]);
+  const handleBlockChange = useCallback((slug: string, field: "title" | "bodyText", value: string) => {
+    setBlocks((prev) => prev.map((b) => b.slug === slug ? { ...b, [field]: value } : b));
+  }, []);
 
-  const saveBlock = useCallback(async (slug: string) => {
-    const block = blocks.find((b) => b.slug === slug);
-    if (!block) return;
-    setSaveStates((p) => ({ ...p, [slug]: "saving" }));
-    setSaveErrors((p) => { const rest = { ...p }; delete rest[slug]; return rest; });
+  const saveAll = async () => {
+    setIsSavingAll(true);
     try {
-      const res = await fetch("/api/admin/content", {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ type: "block", slug, title: block.title, bodyText: block.bodyText, mediaUrl: block.mediaUrl, metadata: block.metadata }),
-      });
-      if (!res.ok) throw new Error(`Server rejected the save (${res.status})`);
-      confirmedBlocks.current[slug] = block;
-      setSaveStates((p) => ({ ...p, [slug]: "saved" }));
-      toast.success("Content block saved");
+      const promises: Promise<Response>[] = [];
+
+      for (const [key, value] of Object.entries(settings)) {
+        if (value !== confirmedSettings.current[key]) {
+          promises.push(
+            fetch("/api/admin/content", {
+              method: "PATCH",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ type: "setting", key, value }),
+            }).then(res => {
+              if (res.ok) confirmedSettings.current[key] = value;
+              return res;
+            })
+          );
+        }
+      }
+
+      for (const block of blocks) {
+        const confirmed = confirmedBlocks.current[block.slug];
+        if (
+          !confirmed ||
+          block.title !== confirmed.title ||
+          block.bodyText !== confirmed.bodyText ||
+          block.mediaUrl !== confirmed.mediaUrl ||
+          JSON.stringify(block.metadata) !== JSON.stringify(confirmed.metadata)
+        ) {
+          promises.push(
+            fetch("/api/admin/content", {
+              method: "PATCH",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ type: "block", slug: block.slug, title: block.title, bodyText: block.bodyText, mediaUrl: block.mediaUrl, metadata: block.metadata }),
+            }).then(res => {
+              if (res.ok) confirmedBlocks.current[block.slug] = block;
+              return res;
+            })
+          );
+        }
+      }
+
+      if (promises.length === 0) {
+        toast.success("No changes to save");
+        setIsSavingAll(false);
+        return;
+      }
+
+      const results = await Promise.all(promises);
+      const failed = results.filter(r => !r.ok);
+
+      if (failed.length > 0) {
+        toast.error(`Failed to save ${failed.length} item(s)`);
+      } else {
+        toast.success("All changes saved successfully");
+      }
     } catch (err) {
-      const fallback = confirmedBlocks.current[slug] ?? { slug, title: null, bodyText: null, mediaUrl: null, metadata: null };
-      setBlocks((prev) => prev.map((b) => b.slug === slug ? fallback : b));
-      setSaveStates((p) => ({ ...p, [slug]: "error" }));
-      const msg = err instanceof Error ? err.message : "Save failed";
-      setSaveErrors((p) => ({ ...p, [slug]: msg }));
-      toast.error(msg);
+      toast.error(err instanceof Error ? err.message : "Save failed");
+    } finally {
+      setIsSavingAll(false);
     }
+  };
+
+  const block = useCallback((slug: string) => {
+    return blocks.find((b) => b.slug === slug) ?? { slug, title: null, bodyText: null, mediaUrl: null, metadata: null };
   }, [blocks]);
 
-  const debouncedSaveSetting = useDebouncedCallback(saveSetting, AUTOSAVE_DELAY_MS);
-  const debouncedSaveBlock = useDebouncedCallback(saveBlock, AUTOSAVE_DELAY_MS);
-
-  const handleSettingChange = (key: string, value: string) => {
-    setSettings((prev) => ({ ...prev, [key]: value }));
-    debouncedSaveSetting(key);
-  };
-
-  const handleBlockChange = (slug: string, field: "title" | "bodyText", value: string) => {
-    setBlocks((prev) => prev.map((b) => b.slug === slug ? { ...b, [field]: value } : b));
-    debouncedSaveBlock(slug);
-  };
-
-  const block = (slug: string): ContentBlock =>
-    blocks.find((b) => b.slug === slug) ?? { slug, title: null, bodyText: null, mediaUrl: null, metadata: null };
+  const hasChanges = useMemo(() => {
+    if (Object.keys(settings).length === 0) return false;
+    for (const [key, value] of Object.entries(settings)) {
+      if (value !== confirmedSettings.current[key]) return true;
+    }
+    for (const block of blocks) {
+      const confirmed = confirmedBlocks.current[block.slug];
+      if (
+        !confirmed ||
+        block.title !== confirmed.title ||
+        block.bodyText !== confirmed.bodyText ||
+        block.mediaUrl !== confirmed.mediaUrl ||
+        JSON.stringify(block.metadata) !== JSON.stringify(confirmed.metadata)
+      ) {
+        return true;
+      }
+    }
+    return false;
+  }, [settings, blocks]);
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-24 gap-2 text-steel">
-        <Loader2 size={20} className="animate-spin" /> Loading content from database…
+      <div className="flex flex-col gap-4">
+        <div className="flex gap-2">
+          <Skeleton className="h-10 w-24" />
+          <Skeleton className="h-10 w-32" />
+          <Skeleton className="h-10 w-28" />
+          <Skeleton className="h-10 w-32" />
+        </div>
+        <div className="flex-1 space-y-8 mt-2">
+          <Card>
+            <CardHeader>
+              <Skeleton className="h-6 w-48 mb-2" />
+              <Skeleton className="h-4 w-64" />
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div>
+                <Skeleton className="h-4 w-32 mb-2" />
+                <Skeleton className="h-24 w-full" />
+              </div>
+              <div>
+                <Skeleton className="h-4 w-32 mb-2" />
+                <Skeleton className="h-24 w-full" />
+              </div>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     );
   }
@@ -244,84 +293,162 @@ export default function ContentTab() {
     );
   }
 
+  const TABS = [
+    { id: "site-info", label: "Site Info" },
+    { id: "contact-details", label: "Contact Details" },
+    { id: "footer-data", label: "Footer Data" },
+    { id: "page-content", label: "Page Content" },
+  ];
+
   return (
-    <div className="space-y-8">
-      {/* Hero */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Hero Section</CardTitle>
-          <CardDescription>Homepage banner text and location badge. Changes auto-save as you type.</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <SettingField label="Headline (use \\n for line break)" settingKey="hero.headline" value={settings["hero.headline"] ?? ""} multiline onChange={handleSettingChange} onSave={saveSetting} saveState={saveStates["hero.headline"] ?? "idle"} error={saveErrors["hero.headline"]} />
-          <SettingField label="Sub-text" settingKey="hero.subtext" value={settings["hero.subtext"] ?? ""} multiline onChange={handleSettingChange} onSave={saveSetting} saveState={saveStates["hero.subtext"] ?? "idle"} error={saveErrors["hero.subtext"]} />
-          <SettingField label="Location Badge" settingKey="hero.locationBadge" value={settings["hero.locationBadge"] ?? ""} onChange={handleSettingChange} onSave={saveSetting} saveState={saveStates["hero.locationBadge"] ?? "idle"} error={saveErrors["hero.locationBadge"]} />
-        </CardContent>
-      </Card>
+    <div className="flex flex-col gap-4">
+      <div className="w-full shrink-0 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex gap-1 overflow-x-auto pb-1 sm:pb-0 scrollbar-hide -mx-1 px-1">
+          {TABS.map((tab) => {
+            const isActive = activeTab === tab.id;
+            return (
+              <button key={tab.id} onClick={() => {
+                if (hasChanges && !isActive) {
+                  toast.error("Please save or discard your changes first.", 3500);
+                  setShakeButton(true);
+                  setTimeout(() => setShakeButton(false), 500);
+                  return;
+                }
+                setActiveTab(tab.id);
+              }}
+                className={`relative shrink-0 text-left px-4 py-2.5 rounded-lg text-sm font-medium transition-colors ${isActive ? "text-ink font-semibold" : "text-steel hover:bg-ink/5 hover:text-ink"}`}>
+                {isActive && (
+                  <motion.div
+                    layoutId="active-content-tab"
+                    className="absolute inset-0 bg-gold rounded-lg shadow-sm"
+                    transition={{ type: "spring", stiffness: 350, damping: 30 }}
+                  />
+                )}
+                <span className="relative z-10">{tab.label}</span>
+              </button>
+            );
+          })}
+        </div>
+        <div className="flex gap-2 items-center shrink-0">
+          {hasChanges && (
+            <Button className="text-black! bg-gray-200!" variant="outline" disabled={isSavingAll} onClick={() => {
+              setSettings({ ...confirmedSettings.current });
+              fetchContent();
+            }}>
+              Discard
+            </Button>
+          )}
+          <motion.div animate={shakeButton ? { x: [-8, 8, -8, 8, -4, 4, 0] } : {}} transition={{ duration: 0.4 }}>
+            <Button onClick={saveAll} disabled={isSavingAll || !hasChanges} className={hasChanges ? "bg-green-600 text-white hover:bg-green-700 font-semibold px-4" : "bg-gold text-ink hover:bg-gold/90 font-semibold px-4"}>
+              {isSavingAll ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
+              Save Changes
+            </Button>
+          </motion.div>
+        </div>
+      </div>
 
-      {/* Location */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Location & Contact</CardTitle>
-          <CardDescription>Showroom address, phone number, and opening hours.</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <SettingField label="Address" settingKey="location.address" value={settings["location.address"] ?? ""} onChange={handleSettingChange} onSave={saveSetting} saveState={saveStates["location.address"] ?? "idle"} error={saveErrors["location.address"]} />
-          <SettingField label="Phone Number" settingKey="location.phone" value={settings["location.phone"] ?? ""} onChange={handleSettingChange} onSave={saveSetting} saveState={saveStates["location.phone"] ?? "idle"} error={saveErrors["location.phone"]} />
-          <SettingField label="Opening Hours" settingKey="location.hours" value={settings["location.hours"] ?? ""} onChange={handleSettingChange} onSave={saveSetting} saveState={saveStates["location.hours"] ?? "idle"} error={saveErrors["location.hours"]} />
-        </CardContent>
-      </Card>
+      <div className="flex-1 space-y-8">
+        {activeTab === "site-info" && (
+          <Fragment>
+            <Card>
+              <CardHeader>
+                <CardTitle>Hero Section</CardTitle>
+                <CardDescription>Homepage banner text and location badge.</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <SettingField label="Headline (use \n for line break)" settingKey="hero.headline" value={settings["hero.headline"] ?? ""} multiline onChange={handleSettingChange} />
+                <SettingField label="Sub-text" settingKey="hero.subtext" value={settings["hero.subtext"] ?? ""} multiline onChange={handleSettingChange} />
+                <SettingField label="Location Badge" settingKey="hero.locationBadge" value={settings["hero.locationBadge"] ?? ""} onChange={handleSettingChange} />
+              </CardContent>
+            </Card>
 
-      {/* Newsletter */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Newsletter Section</CardTitle>
-          <CardDescription>CTA heading and subtext for the newsletter sign-up.</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <SettingField label="Heading" settingKey="newsletter.heading" value={settings["newsletter.heading"] ?? ""} onChange={handleSettingChange} onSave={saveSetting} saveState={saveStates["newsletter.heading"] ?? "idle"} error={saveErrors["newsletter.heading"]} />
-          <SettingField label="Sub-text" settingKey="newsletter.subtext" value={settings["newsletter.subtext"] ?? ""} multiline onChange={handleSettingChange} onSave={saveSetting} saveState={saveStates["newsletter.subtext"] ?? "idle"} error={saveErrors["newsletter.subtext"]} />
-        </CardContent>
-      </Card>
+            <Card>
+              <CardHeader>
+                <CardTitle>Newsletter Section</CardTitle>
+                <CardDescription>CTA heading and subtext for the newsletter sign-up.</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <SettingField label="Heading" settingKey="newsletter.heading" value={settings["newsletter.heading"] ?? ""} onChange={handleSettingChange} />
+                <SettingField label="Sub-text" settingKey="newsletter.subtext" value={settings["newsletter.subtext"] ?? ""} multiline onChange={handleSettingChange} />
+              </CardContent>
+            </Card>
+          </Fragment>
+        )}
 
-      {/* Value Props */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Value Propositions</CardTitle>
-          <CardDescription>The four selling points shown on the homepage.</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          {["value.direct-dealer-pricing","value.on-site-installation","value.commercial-grade-builds","value.delhi-wide-delivery"].map((slug) => (
-            <BlockField key={slug} label={slug.replace("value.", "").replace(/-/g, " ")} block={block(slug)} onChange={handleBlockChange} onSave={saveBlock} saveState={saveStates[slug] ?? "idle"} error={saveErrors[slug]} />
-          ))}
-        </CardContent>
-      </Card>
+        {activeTab === "contact-details" && (
+          <Card>
+            <CardHeader>
+              <CardTitle>Contact Details</CardTitle>
+              <CardDescription>Global contact details used in the header, footer, and contact page.</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex justify-center items-center gap-4 w-full " >
+                <PhoneSettingField label="Phone Number" className="w-full" settingKey="site.phone" value={settings["site.phone"] ?? ""} onChange={handleSettingChange} />
+                <SettingField label="Email Address" className="w-full" settingKey="site.email" value={settings["site.email"] ?? ""} onChange={handleSettingChange} />
+              </div>
+              <SettingField label="Showroom Address" settingKey="site.address" value={settings["site.address"] ?? ""} multiline onChange={handleSettingChange} />
+              <SettingField label="Opening Hours" settingKey="site.hours" value={settings["site.hours"] ?? ""} onChange={handleSettingChange} />
+              <SettingField label="WhatsApp Link (URL)" settingKey="site.whatsapp" value={settings["site.whatsapp"] ?? ""} onChange={handleSettingChange} />
+              <SettingField label="Google Maps Embed URL" settingKey="site.mapUrl" value={settings["site.mapUrl"] ?? ""} onChange={handleSettingChange} />
+            </CardContent>
+          </Card>
+        )}
 
-      {/* Testimonials */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Testimonials</CardTitle>
-          <CardDescription>Customer quotes shown on the homepage. Title = Name · Location.</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          {["testimonial.1","testimonial.2","testimonial.3"].map((slug) => (
-            <BlockField key={slug} label={`Testimonial ${slug.split(".")[1]}`} block={block(slug)} onChange={handleBlockChange} onSave={saveBlock} saveState={saveStates[slug] ?? "idle"} error={saveErrors[slug]} />
-          ))}
-        </CardContent>
-      </Card>
+        {activeTab === "footer-data" && (
+          <Card>
+            <CardHeader>
+              <CardTitle>Footer Data</CardTitle>
+              <CardDescription>Description and social links shown in the footer.</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <SettingField label="Footer Description" settingKey="site.footerText" value={settings["site.footerText"] ?? ""} multiline onChange={handleSettingChange} />
+              <SettingField label="Facebook URL" settingKey="site.facebook" value={settings["site.facebook"] ?? ""} onChange={handleSettingChange} />
+              <SettingField label="Instagram URL" settingKey="site.instagram" value={settings["site.instagram"] ?? ""} onChange={handleSettingChange} />
+              <SettingField label="YouTube URL" settingKey="site.youtube" value={settings["site.youtube"] ?? ""} onChange={handleSettingChange} />
+            </CardContent>
+          </Card>
+        )}
 
-      {/* Timeline */}
-      <Card>
-        <CardHeader>
-          <CardTitle>About Page Timeline</CardTitle>
-          <CardDescription>Company history milestones shown on the About page.</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          {["timeline.1","timeline.2","timeline.3","timeline.4"].map((slug, i) => (
-            <BlockField key={slug} label={`Milestone ${i + 1}`} block={block(slug)} onChange={handleBlockChange} onSave={saveBlock} saveState={saveStates[slug] ?? "idle"} error={saveErrors[slug]} />
-          ))}
-        </CardContent>
-      </Card>
+        {activeTab === "page-content" && (
+          <Fragment>
+            <Card>
+              <CardHeader>
+                <CardTitle>Value Propositions</CardTitle>
+                <CardDescription>The four selling points shown on the homepage.</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {["value.direct-dealer-pricing", "value.on-site-installation", "value.commercial-grade-builds", "value.delhi-wide-delivery"].map((slug) => (
+                  <BlockField key={slug} label={slug.replace("value.", "").replace(/-/g, " ")} block={block(slug)} onChange={handleBlockChange} />
+                ))}
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Testimonials</CardTitle>
+                <CardDescription>Customer quotes shown on the homepage. Title = Name · Location.</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {["testimonial.1", "testimonial.2", "testimonial.3"].map((slug) => (
+                  <BlockField key={slug} label={`Testimonial ${slug.split(".")[1]}`} block={block(slug)} onChange={handleBlockChange} />
+                ))}
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>About Page Timeline</CardTitle>
+                <CardDescription>Company history milestones shown on the About page.</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {["timeline.1", "timeline.2", "timeline.3", "timeline.4"].map((slug, i) => (
+                  <BlockField key={slug} label={`Milestone ${i + 1}`} block={block(slug)} onChange={handleBlockChange} />
+                ))}
+              </CardContent>
+            </Card>
+          </Fragment>
+        )}
+      </div>
     </div>
   );
 }

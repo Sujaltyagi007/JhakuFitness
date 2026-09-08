@@ -24,6 +24,7 @@ export default function FeaturedCarousel({ products }: FeaturedCarouselProps) {
             eyebrow="Featured this month"
             title="Our most requested equipment"
             description="A shortlist pulled from what studios and home gyms across Delhi are asking for right now."
+            mode="light"
           />
           <div className="flex gap-2">
             <button onClick={() => scroll(-1)} aria-label="Scroll left"

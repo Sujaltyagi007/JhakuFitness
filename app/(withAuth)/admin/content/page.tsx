@@ -3,7 +3,7 @@
 import AdminAuthGate from "@/components/admin/AdminAuthGate";
 import AdminShell, { AdminNavItem } from "@/components/admin/AdminShell";
 import ContentTab from "@/components/admin/tabs/ContentTab";
-import { Package, Inbox, FileSpreadsheet, Warehouse, BarChart2, Layout } from "lucide-react";
+import { Package, Inbox, FileSpreadsheet, Warehouse, BarChart2, Layout, Image } from "lucide-react";
 
 const navItems: AdminNavItem[] = [
   { id: "analytics", label: "Analytics", icon: BarChart2, href: "/admin" },
@@ -12,6 +12,7 @@ const navItems: AdminNavItem[] = [
   { id: "content", label: "Content", icon: Layout },
   { id: "invoice", label: "Invoices", icon: FileSpreadsheet, href: "/admin" },
   { id: "leads", label: "Leads", icon: Inbox, href: "/admin" },
+  { id: "media", label: "Media", icon: Image, href: "/admin" },
 ];
 
 export default function AdminContentPage() {

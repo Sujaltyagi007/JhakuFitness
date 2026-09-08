@@ -11,9 +11,9 @@ export function Badge({
   ...props
 }: BadgeProps) {
   const variantStyles = {
-    default: "bg-ink text-white",
-    secondary: "bg-ink/5 text-ink border border-ink/10",
-    outline: "border border-ink/20 text-ink",
+    default: "bg-theme-text text-theme-bg",
+    secondary: "bg-theme-surface-hover text-theme-text border border-theme-border",
+    outline: "border border-theme-border text-theme-text",
     gold: "bg-gold/15 text-gold-deep border border-gold/30 font-semibold",
   }[variant];
 

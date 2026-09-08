@@ -1,16 +1,13 @@
 "use client";
-
-import { useState, useEffect, useCallback } from "react";
-import { CategoryId, ModelKind } from "@/lib/types";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
+import Link from "next/link";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import {
-  Search, Edit2, ExternalLink, Image as ImageIcon, Video,
-  Check, X, Plus, Trash2, Loader2, Star,
-} from "lucide-react";
-import Link from "next/link";
+import { Skeleton } from "@/components/ui/skeleton";
+import { CategoryId, ModelKind } from "@/lib/types";
+import { useState, useEffect, useCallback } from "react";
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
+import { Search, Edit2, ExternalLink, Image as ImageIcon, Video, Check, X, Plus, Trash2, Loader2, Star } from "lucide-react";
 
 // ─── types ────────────────────────────────────────────────────────────────────
 
@@ -174,8 +171,12 @@ export default function ProductsTab() {
 
         <CardContent>
           {loading ? (
-            <div className="flex items-center justify-center py-12 gap-2 text-steel">
-              <Loader2 size={18} className="animate-spin" /> Loading products from database…
+            <div className="flex flex-col space-y-4 py-4">
+              <Skeleton className="h-12 w-full rounded-lg" />
+              <Skeleton className="h-12 w-full rounded-lg" />
+              <Skeleton className="h-12 w-full rounded-lg" />
+              <Skeleton className="h-12 w-full rounded-lg" />
+              <Skeleton className="h-12 w-full rounded-lg" />
             </div>
           ) : (
             <div className="overflow-x-auto rounded-xl border border-ink/8">
@@ -278,7 +279,7 @@ export default function ProductsTab() {
                 <select value={editingProduct.modelKind}
                   onChange={(e) => setEditingProduct({ ...editingProduct, modelKind: e.target.value as ModelKind })}
                   className="mt-1 w-full rounded-lg border border-ink/15 bg-white px-3 py-2 text-sm text-ink outline-none focus:border-gold">
-                  {["treadmill","spin-bike","cross-trainer","rower","ski-machine","stair-master","air-bike"].map(k => <option key={k} value={k}>{k}</option>)}
+                  {["treadmill", "spin-bike", "cross-trainer", "rower", "ski-machine", "stair-master", "air-bike"].map(k => <option key={k} value={k}>{k}</option>)}
                 </select>
               </div>
 

@@ -1,8 +1,7 @@
 "use client";
-
-import React, { createContext, useContext, useState, useCallback, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { CheckCircle2, AlertCircle, Info, X } from "lucide-react";
+import React, { createContext, useContext, useState, useCallback, useEffect } from "react";
 
 export type ToastType = "success" | "error" | "info";
 
@@ -21,10 +20,8 @@ interface ToastContextType {
 }
 
 const ToastContext = createContext<ToastContextType | undefined>(undefined);
-
 let globalToastHandler: ((item: ToastItem) => void) | null = null;
 
-/** Helper function callable from anywhere (inside or outside React components) */
 export const toast = {
   show: (message: string, type: ToastType = "info", duration = 3000) => {
     if (globalToastHandler) {
@@ -38,20 +35,11 @@ export const toast = {
 
 export function ToastProvider({ children }: { children: React.ReactNode }) {
   const [toasts, setToasts] = useState<ToastItem[]>([]);
-
-  const addToast = useCallback((item: ToastItem) => {
-    setToasts((prev) => [...prev.slice(-4), item]); // keep max 5 active toasts
-  }, []);
-
-  const removeToast = useCallback((id: string) => {
-    setToasts((prev) => prev.filter((t) => t.id !== id));
-  }, []);
-
+  const addToast = useCallback((item: ToastItem) => { setToasts((prev) => [...prev.slice(-4), item]) }, []);
+  const removeToast = useCallback((id: string) => { setToasts((prev) => prev.filter((t) => t.id !== id)) }, []);
   useEffect(() => {
     globalToastHandler = addToast;
-    return () => {
-      globalToastHandler = null;
-    };
+    return () => { globalToastHandler = null };
   }, [addToast]);
 
   const api: ToastContextType = {
@@ -77,35 +65,34 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
 
 function ToastCard({ toast, onClose }: { toast: ToastItem; onClose: () => void }) {
   const { message, type = "info", duration = 3000 } = toast;
-
   useEffect(() => {
-    const timer = setTimeout(() => {
-      onClose();
-    }, duration);
+    const timer = setTimeout(() => { onClose() }, duration);
     return () => clearTimeout(timer);
   }, [duration, onClose]);
 
+  const isError = type === "error";
+  const isSuccess = type === "success";
+
   return (
-    <motion.div
-      layout
+    <motion.div layout
       initial={{ opacity: 0, y: 20, scale: 0.95 }}
-      animate={{ opacity: 1, y: 0, scale: 1 }}
+      animate={isError ? { opacity: 1, y: 0, scale: 1, x: [-5, 5, -5, 5, 0] } : { opacity: 1, y: 0, scale: 1 }}
       exit={{ opacity: 0, y: 10, scale: 0.95 }}
-      transition={{ duration: 0.2, ease: "easeOut" }}
-      className="pointer-events-auto flex items-center justify-between gap-3 rounded-full bg-ink/90 text-white backdrop-blur-md px-4 py-2.5 shadow-xl border border-white/10 text-xs font-medium tracking-tight"
+      transition={{ duration: 0.3, ease: "easeOut" }}
+      className={`pointer-events-auto flex items-center justify-between gap-4 rounded-2xl backdrop-blur-md px-5 py-3 shadow-2xl border text-sm font-semibold tracking-tight ${
+        isError ? "bg-red-500 text-white border-red-600 shadow-red-500/20" :
+        isSuccess ? "bg-emerald-500 text-white border-emerald-600 shadow-emerald-500/20" :
+        "bg-theme-surface text-theme-text border-theme-border"
+      }`}
     >
-      <div className="flex items-center gap-2.5 min-w-0">
-        {type === "success" && <CheckCircle2 size={15} className="text-emerald-400 shrink-0" />}
-        {type === "error" && <AlertCircle size={15} className="text-rose-400 shrink-0" />}
-        {type === "info" && <Info size={15} className="text-gold shrink-0" />}
+      <div className="flex items-center gap-3 min-w-0">
+        {isSuccess && <CheckCircle2 size={18} className="text-white shrink-0" />}
+        {isError && <AlertCircle size={18} className="text-white shrink-0" />}
+        {type === "info" && <Info size={18} className="text-gold shrink-0" />}
         <span className="truncate leading-snug">{message}</span>
       </div>
-      <button
-        onClick={onClose}
-        className="ml-1 text-white/50 hover:text-white transition-colors rounded-full p-0.5"
-        aria-label="Dismiss toast"
-      >
-        <X size={13} />
+      <button onClick={onClose} className={`ml-1 transition-colors rounded-full p-1 ${isError || isSuccess ? "hover:bg-white/20 text-white/80 hover:text-white" : "hover:bg-theme-border text-theme-muted hover:text-theme-text"}`} aria-label="Dismiss toast">
+        <X size={15} />
       </button>
     </motion.div>
   );

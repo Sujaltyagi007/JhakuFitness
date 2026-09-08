@@ -47,16 +47,16 @@ export default function ProductGrid({ products, categories }: ProductGridProps) 
   return (
     <div>
       {/* category tabs */}
-      <div className="flex flex-wrap gap-2">
+      <div className="flex flex-wrap gap-2.5">
         <button onClick={() => setActiveCategory("all")}
-          className={clsx("flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-medium transition-colors",
-            activeCategory === "all" ? "border-ink bg-ink text-white" : "border-ink/15 text-ink hover:border-ink/40")}>
-          All equipment
+          className={clsx("flex items-center gap-2 rounded-xl border px-4 py-2.5 text-xs sm:text-sm font-semibold transition-all backdrop-blur-md",
+            activeCategory === "all" ? "border-gold bg-gold text-ink shadow-lg shadow-gold/20" : "border-theme-border bg-theme-surface text-theme-muted hover:bg-theme-surface-hover hover:text-theme-text")}>
+          All Equipment
         </button>
         {categories.map((c) => (
           <button key={c.id} onClick={() => setActiveCategory(c.id)}
-            className={clsx("flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-medium transition-colors",
-              activeCategory === c.id ? "border-ink bg-ink text-white" : "border-ink/15 text-ink hover:border-ink/40")}>
+            className={clsx("flex items-center gap-2 rounded-xl border px-4 py-2.5 text-xs sm:text-sm font-semibold transition-all backdrop-blur-md",
+              activeCategory === c.id ? "border-gold bg-gold text-ink shadow-lg shadow-gold/20" : "border-theme-border bg-theme-surface text-theme-muted hover:bg-theme-surface-hover hover:text-theme-text")}>
             <CategoryIcon category={c.id} className="h-4 w-4" />
             {c.name}
           </button>
@@ -64,13 +64,13 @@ export default function ProductGrid({ products, categories }: ProductGridProps) 
       </div>
 
       {/* toolbar */}
-      <div className="mt-6 flex flex-col gap-4 border-y border-ink/8 py-4 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex items-center gap-3 text-sm text-steel">
+      <div className="mt-6 flex flex-col gap-4 border-y border-theme-border py-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex items-center gap-3 text-sm text-theme-muted">
           <SlidersHorizontal size={15} />
           <label className="flex items-center gap-2">
             Min. user weight
             <select value={minWeight} onChange={(e) => setMinWeight(Number(e.target.value))}
-              className="rounded-lg border border-ink/15 bg-white px-2 py-1.5 text-sm text-ink">
+              className="rounded-lg border border-theme-border bg-theme-surface px-2 py-1.5 text-sm text-theme-text outline-none focus:border-gold">
               <option value={0}>Any</option>
               <option value={130}>130 kg+</option>
               <option value={150}>150 kg+</option>
@@ -79,32 +79,32 @@ export default function ProductGrid({ products, categories }: ProductGridProps) 
           </label>
         </div>
         <div className="flex items-center gap-4">
-          <label className="flex items-center gap-2 text-sm text-steel">
+          <label className="flex items-center gap-2 text-sm text-theme-muted">
             Sort by
             <select value={sort} onChange={(e) => setSort(e.target.value as SortKey)}
-              className="rounded-lg border border-ink/15 bg-white px-2 py-1.5 text-sm text-ink">
+              className="rounded-lg border border-theme-border bg-theme-surface px-2 py-1.5 text-sm text-theme-text outline-none focus:border-gold">
               <option value="featured">Popularity</option>
               <option value="name">Name</option>
               <option value="weight">Weight capacity</option>
             </select>
           </label>
-          <div className="flex overflow-hidden rounded-lg border border-ink/15">
+          <div className="flex overflow-hidden rounded-lg border border-theme-border">
             <button onClick={() => setView("grid")} aria-label="Grid view"
-              className={clsx("flex h-8 w-9 items-center justify-center", view === "grid" ? "bg-ink text-white" : "text-steel")}>
+              className={clsx("flex h-8 w-9 items-center justify-center transition-colors", view === "grid" ? "bg-theme-text text-theme-bg" : "text-theme-muted hover:bg-theme-surface-hover")}>
               <LayoutGrid size={15} />
             </button>
             <button onClick={() => setView("list")} aria-label="List view"
-              className={clsx("flex h-8 w-9 items-center justify-center", view === "list" ? "bg-ink text-white" : "text-steel")}>
+              className={clsx("flex h-8 w-9 items-center justify-center transition-colors", view === "list" ? "bg-theme-text text-theme-bg" : "text-theme-muted hover:bg-theme-surface-hover")}>
               <List size={15} />
             </button>
           </div>
         </div>
       </div>
 
-      <p className="mt-4 text-sm text-steel">{filtered.length} {filtered.length === 1 ? "model" : "models"}</p>
+      <p className="mt-4 text-sm text-theme-muted">{filtered.length} {filtered.length === 1 ? "model" : "models"}</p>
 
       {filtered.length === 0 ? (
-        <div className="mt-10 rounded-2xl border border-dashed border-ink/15 py-16 text-center text-steel">
+        <div className="mt-10 rounded-2xl border border-dashed border-theme-border py-16 text-center text-theme-muted">
           No equipment matches these filters yet. Try widening your search.
         </div>
       ) : (

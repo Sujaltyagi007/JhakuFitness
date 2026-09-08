@@ -1,17 +1,12 @@
 "use client";
-
-import { useCallback, useEffect, useState } from "react";
-import {
-  Card, CardHeader, CardTitle, CardDescription, CardContent,
-} from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import {
-  Package, TrendingUp, TrendingDown, RotateCcw,
-  ChevronDown, ChevronUp, AlertTriangle, IndianRupee, Loader2, RefreshCw,
-} from "lucide-react";
-import { useDebouncedCallback } from "@/lib/useDebouncedCallback";
 import { toast } from "@/components/ui/Toast";
+import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
+import { useCallback, useEffect, useState } from "react";
+import { useDebouncedCallback } from "@/lib/useDebouncedCallback";
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
+import { Package, TrendingUp, TrendingDown, RotateCcw, ChevronDown, ChevronUp, AlertTriangle, IndianRupee, RefreshCw, Loader2 } from "lucide-react";
 
 // ─── types ────────────────────────────────────────────────────────────────────
 
@@ -211,8 +206,25 @@ export default function InventoryTab() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-24 gap-2 text-steel">
-        <Loader2 size={20} className="animate-spin" /> Loading inventory from database…
+      <div className="space-y-6">
+        <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+          <Skeleton className="h-28 w-full rounded-xl" />
+          <Skeleton className="h-28 w-full rounded-xl" />
+          <Skeleton className="h-28 w-full rounded-xl" />
+          <Skeleton className="h-28 w-full rounded-xl" />
+        </div>
+        <Card>
+          <CardHeader>
+            <Skeleton className="h-6 w-48 mb-2" />
+            <Skeleton className="h-4 w-64" />
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <Skeleton className="h-12 w-full rounded-lg" />
+            <Skeleton className="h-12 w-full rounded-lg" />
+            <Skeleton className="h-12 w-full rounded-lg" />
+            <Skeleton className="h-12 w-full rounded-lg" />
+          </CardContent>
+        </Card>
       </div>
     );
   }

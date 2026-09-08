@@ -115,15 +115,9 @@ export default function MediaTab() {
 
         <CardContent className="space-y-6">
           {/* Dropzone / Upload area */}
-          <div
-            onClick={() => fileInputRef.current?.click()}
-            className="group flex cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed border-ink/15 bg-paper/60 p-8 text-center transition-all hover:border-gold hover:bg-gold/5"
-          >
-            <input
-              ref={fileInputRef}
-              type="file"
-              onChange={handleFileUpload}
-              accept="image/*,video/mp4,video/webm,.pdf"
+          <div onClick={() => fileInputRef.current?.click()}
+            className="group flex cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed border-ink/15 bg-transparent p-8 text-center transition-all hover:border-gold hover:bg-gold/5"          >
+            <input ref={fileInputRef} type="file" onChange={handleFileUpload} accept="image/*,video/mp4,video/webm,.pdf"
               className="hidden"
             />
             <div className="flex h-12 w-12 items-center justify-center rounded-full bg-ink/5 text-ink transition-transform group-hover:scale-110 group-hover:bg-gold/20">

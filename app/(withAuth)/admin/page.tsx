@@ -14,8 +14,7 @@ export default function AdminPage() {
             <div className="flex min-h-screen items-center justify-center bg-[#f8f8f6]">
               <Loader2 className="h-7 w-7 animate-spin text-gold-deep" />
             </div>
-          }
-        >
+          }        >
           <AdminDashboard onLogout={logout} />
         </Suspense>
       )}

@@ -1,20 +1,57 @@
 @import "tailwindcss";
 
-:root {
-  --ink: #1b1b1d;
-  --ink-soft: #2c2c2f;
+/* Default Dark Theme */
+:root,
+html[data-theme="dark"] {
+  --ink: #0d0d0f;
+  --ink-soft: #161619;
   --gold: #c9a54e;
   --gold-bright: #e7c579;
   --gold-deep: #a3813a;
-  --paper: #f4f4f2;
-  --paper-dim: #e9e8e4;
-  --steel: #6b6b6e;
-  --steel-light: #9a9a9d;
+  --paper: #0b0b0d;
+  --paper-dim: #131316;
+  --steel: #8a8a8e;
+  --steel-light: #b0b0b4;
   --white: #ffffff;
-  --line: rgba(27, 27, 29, 0.1);
+  --bg-main: #0b0b0d;
+  --text-main: #ffffff;
+  --text-muted: rgba(255, 255, 255, 0.7);
+  --card-bg: rgba(255, 255, 255, 0.05);
+  --card-border: rgba(255, 255, 255, 0.12);
+  --surface-bg: rgba(22, 22, 25, 0.95);
+  --surface-text: #ffffff;
+  --surface-text-muted: rgba(255, 255, 255, 0.7);
+  --surface-hover: rgba(255, 255, 255, 0.1);
+  --hero-scrim: linear-gradient(to bottom, transparent 0%, rgba(11, 11, 13, 0.95) 100%);
+  color-scheme: dark;
 }
 
-@theme inline {
+/* Light Theme */
+html[data-theme="light"] {
+  --ink: #111113;
+  --ink-soft: #242428;
+  --gold: #b38b2d;
+  --gold-bright: #d4a945;
+  --gold-deep: #8c6a1e;
+  --paper: #f8f8f6;
+  --paper-dim: #edece8;
+  --steel: #555558;
+  --steel-light: #77777a;
+  --white: #111113;
+  --bg-main: #f8f8f6;
+  --text-main: #111113;
+  --text-muted: rgba(17, 17, 19, 0.7);
+  --card-bg: rgba(255, 255, 255, 0.9);
+  --card-border: rgba(17, 17, 19, 0.12);
+  --surface-bg: rgba(248, 248, 246, 0.95);
+  --surface-text: #111113;
+  --surface-text-muted: rgba(17, 17, 19, 0.7);
+  --surface-hover: rgba(17, 17, 19, 0.05);
+  --hero-scrim: linear-gradient(to bottom, transparent 0%, rgba(248, 248, 246, 0.95) 100%);
+  color-scheme: light;
+}
+
+@theme {
   --color-ink: var(--ink);
   --color-ink-soft: var(--ink-soft);
   --color-gold: var(--gold);
@@ -24,6 +61,15 @@
   --color-paper-dim: var(--paper-dim);
   --color-steel: var(--steel);
   --color-steel-light: var(--steel-light);
+  --color-theme-bg: var(--bg-main);
+  --color-theme-text: var(--text-main);
+  --color-theme-muted: var(--text-muted);
+  --color-theme-card: var(--card-bg);
+  --color-theme-border: var(--card-border);
+  --color-theme-surface: var(--surface-bg);
+  --color-theme-surface-text: var(--surface-text);
+  --color-theme-surface-muted: var(--surface-text-muted);
+  --color-theme-surface-hover: var(--surface-hover);
   --font-display: var(--font-outfit);
   --font-body: var(--font-inter);
 }
@@ -34,12 +80,14 @@
 
 html {
   scroll-behavior: smooth;
+  background-color: var(--bg-main);
 }
 
 body {
-  background: var(--paper);
-  color: var(--ink);
+  background-color: var(--bg-main);
+  color: var(--text-main);
   font-family: var(--font-body), ui-sans-serif, system-ui, sans-serif;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 h1,
@@ -56,7 +104,6 @@ h6 {
   color: var(--ink);
 }
 
-/* Thin gold scrollbar accent */
 ::-webkit-scrollbar {
   width: 10px;
 }
@@ -75,6 +122,7 @@ h6 {
     -ms-overflow-style: none;
     scrollbar-width: none;
   }
+
   *::-webkit-scrollbar {
     display: none;
   }
@@ -82,6 +130,15 @@ h6 {
 
 .text-balance {
   text-wrap: balance;
+}
+
+/* Hide scrollbar but keep scrollability (used for horizontal scroll containers on mobile) */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
 }
 
 @media (prefers-reduced-motion: reduce) {
