@@ -44,8 +44,8 @@ export function SectionHeading({ eyebrow, title, description, align = "left", mo
   return (
     <div className={clsx("max-w-2xl", align === "center" && "mx-auto text-center", className)} >
       {eyebrow && (<p className="mb-2.5 text-xs font-bold uppercase tracking-widest text-gold">{eyebrow}</p>)}
-      <h2 className={clsx("text-balance font-display text-3xl font-extrabold tracking-tight sm:text-4xl", mode === "dark" ? "text-white" : mode === "surface" ? "text-theme-surface-text" : "text-theme-text")}>{title}</h2>
-      {description && (<p className={clsx("mt-3 text-sm leading-relaxed", mode === "dark" ? "text-white/80" : mode === "surface" ? "text-theme-surface-muted" : "text-theme-muted")}>{description}</p>)}
+      <h2 className={clsx("text-balance font-display text-3xl font-extrabold tracking-tight sm:text-4xl", mode === "dark" ? "text-gold!" : mode === "light" ? "text-ink" : "text-theme-text")}>{title}</h2>
+      {description && (<p className={clsx("mt-3 text-sm leading-relaxed", mode === "dark" ? "text-white/80" : mode === "light" ? "text-ink/80" : mode === "surface" ? "text-theme-surface-muted" : "text-theme-muted")}>{description}</p>)}
     </div>
   );
 }

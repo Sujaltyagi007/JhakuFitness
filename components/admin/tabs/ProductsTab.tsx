@@ -1,15 +1,17 @@
 "use client";
 import Link from "next/link";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+import { toast } from "@/components/ui/Toast";
 import { Badge } from "@/components/ui/badge";
-import { Skeleton } from "@/components/ui/skeleton";
+import { Button } from "@/components/ui/button";
 import { CategoryId, ModelKind } from "@/lib/types";
 import { useState, useEffect, useCallback } from "react";
+import { TableRowSkeleton } from "@/components/ui/Skeletons";
+import { getProducts, getCategories, updateProduct, deleteProduct } from "@/lib/api";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 import { Search, Edit2, ExternalLink, Image as ImageIcon, Video, Check, X, Plus, Trash2, Loader2, Star } from "lucide-react";
 
-// ─── types ────────────────────────────────────────────────────────────────────
 
 interface DbCategory {
   id: string;
@@ -35,7 +37,6 @@ interface DbProduct {
   colorwayAccent: string;
 }
 
-// ─── component ────────────────────────────────────────────────────────────────
 
 export default function ProductsTab() {
   const [products, setProducts] = useState<DbProduct[]>([]);
@@ -49,13 +50,11 @@ export default function ProductsTab() {
   const fetchProducts = useCallback(async () => {
     setLoading(true);
     try {
-      const [pRes, cRes] = await Promise.all([
-        fetch("/api/admin/products"),
-        fetch("/api/admin/categories"),
-      ]);
-      const [pData, cData] = await Promise.all([pRes.json(), cRes.json()]);
-      setProducts(pData);
-      setCategories(cData);
+      const [pData, cData] = await Promise.all([getProducts(), getCategories()]);
+      setProducts(pData as DbProduct[]);
+      setCategories(cData as DbCategory[]);
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : "Failed to load products");
     } finally {
       setLoading(false);
     }
@@ -63,43 +62,36 @@ export default function ProductsTab() {
 
   useEffect(() => { fetchProducts(); }, [fetchProducts]);
 
-  const filtered = products.filter(
-    (p) =>
-      p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      p.categoryId.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      p.specialFeature.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filtered = products.filter((p) => p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    p.categoryId.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    p.specialFeature.toLowerCase().includes(searchTerm.toLowerCase()));
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!editingProduct) return;
     setSaving(true);
     try {
-      const res = await fetch(`/api/admin/products/${editingProduct.id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: editingProduct.name,
-          categoryId: editingProduct.categoryId,
-          modelKind: editingProduct.modelKind,
-          tagline: editingProduct.tagline,
-          specialFeature: editingProduct.specialFeature,
-          specs: editingProduct.specs,
-          featured: editingProduct.featured,
-          featureBullets: editingProduct.featureBullets,
-          imageUrl: editingProduct.imageUrl,
-          videoUrl: editingProduct.videoUrl,
-          price: editingProduct.price,
-          colorwayBody: editingProduct.colorwayBody,
-          colorwayAccent: editingProduct.colorwayAccent,
-        }),
-      });
-      if (res.ok) {
-        const updated: DbProduct = await res.json();
-        setProducts((prev) => prev.map((p) => (p.id === updated.id ? updated : p)));
-        setSaveSuccess(true);
-        setTimeout(() => { setSaveSuccess(false); setEditingProduct(null); }, 900);
-      }
+      const updated = await updateProduct(editingProduct.id, {
+        name: editingProduct.name,
+        categoryId: editingProduct.categoryId,
+        modelKind: editingProduct.modelKind,
+        tagline: editingProduct.tagline,
+        specialFeature: editingProduct.specialFeature,
+        specs: editingProduct.specs,
+        featured: editingProduct.featured,
+        featureBullets: editingProduct.featureBullets,
+        imageUrl: editingProduct.imageUrl,
+        videoUrl: editingProduct.videoUrl,
+        price: editingProduct.price,
+        colorwayBody: editingProduct.colorwayBody,
+        colorwayAccent: editingProduct.colorwayAccent,
+      }) as DbProduct;
+
+      setProducts((prev) => prev.map((p) => (p.id === updated.id ? updated : p)));
+      setSaveSuccess(true);
+      setTimeout(() => { setSaveSuccess(false); setEditingProduct(null); }, 900);
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : "Failed to update product");
     } finally {
       setSaving(false);
     }
@@ -107,8 +99,13 @@ export default function ProductsTab() {
 
   const handleDelete = async (id: string) => {
     if (!confirm("Delete this product? This cannot be undone.")) return;
-    await fetch(`/api/admin/products/${id}`, { method: "DELETE" });
-    setProducts((prev) => prev.filter((p) => p.id !== id));
+    try {
+      await deleteProduct(id);
+      setProducts((prev) => prev.filter((p) => p.id !== id));
+      toast.success("Product deleted successfully");
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : "Failed to delete product");
+    }
   };
 
   const handleSpecChange = (key: string, value: string) => {
@@ -172,11 +169,11 @@ export default function ProductsTab() {
         <CardContent>
           {loading ? (
             <div className="flex flex-col space-y-4 py-4">
-              <Skeleton className="h-12 w-full rounded-lg" />
-              <Skeleton className="h-12 w-full rounded-lg" />
-              <Skeleton className="h-12 w-full rounded-lg" />
-              <Skeleton className="h-12 w-full rounded-lg" />
-              <Skeleton className="h-12 w-full rounded-lg" />
+              <TableRowSkeleton />
+              <TableRowSkeleton />
+              <TableRowSkeleton />
+              <TableRowSkeleton />
+              <TableRowSkeleton />
             </div>
           ) : (
             <div className="overflow-x-auto rounded-xl border border-ink/8">
@@ -244,7 +241,6 @@ export default function ProductsTab() {
         </CardContent>
       </Card>
 
-      {/* Edit Modal */}
       {editingProduct && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-ink/40 p-4 backdrop-blur-sm">
           <div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-2xl bg-white p-6 shadow-2xl border border-ink/10">
@@ -266,21 +262,23 @@ export default function ProductsTab() {
                 </div>
                 <div>
                   <label className="text-xs font-semibold text-steel">Category</label>
-                  <select value={editingProduct.categoryId}
-                    onChange={(e) => setEditingProduct({ ...editingProduct, categoryId: e.target.value as CategoryId })}
-                    className="mt-1 w-full rounded-lg border border-ink/15 bg-white px-3 py-2 text-sm text-ink outline-none focus:border-gold">
-                    {categories.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
-                  </select>
+                  <Select value={editingProduct.categoryId} onValueChange={(v) => setEditingProduct({ ...editingProduct, categoryId: v as CategoryId })}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      {categories.map((c) => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
 
               <div>
                 <label className="text-xs font-semibold text-steel">Model Kind</label>
-                <select value={editingProduct.modelKind}
-                  onChange={(e) => setEditingProduct({ ...editingProduct, modelKind: e.target.value as ModelKind })}
-                  className="mt-1 w-full rounded-lg border border-ink/15 bg-white px-3 py-2 text-sm text-ink outline-none focus:border-gold">
-                  {["treadmill", "spin-bike", "cross-trainer", "rower", "ski-machine", "stair-master", "air-bike"].map(k => <option key={k} value={k}>{k}</option>)}
-                </select>
+                <Select value={editingProduct.modelKind} onValueChange={(v) => setEditingProduct({ ...editingProduct, modelKind: v as ModelKind })}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    {["treadmill", "spin-bike", "cross-trainer", "rower", "ski-machine", "stair-master", "air-bike"].map(k => <SelectItem key={k} value={k}>{k}</SelectItem>)}
+                  </SelectContent>
+                </Select>
               </div>
 
               <div>
@@ -294,7 +292,7 @@ export default function ProductsTab() {
               </div>
 
               {/* Colorway */}
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="text-xs font-semibold text-steel">Body Color</label>
                   <div className="mt-1 flex items-center gap-2">

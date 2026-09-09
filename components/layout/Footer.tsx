@@ -24,15 +24,11 @@ export default async function Footer() {
       <Container className="grid grid-cols-1 gap-12 py-10 sm:grid-cols-2 lg:grid-cols-4">
         <div>
           <p className="font-display text-xl font-bold text-theme-text">Jakhu Fitness</p>
-          <p className="mt-3 max-w-xs text-sm leading-relaxed text-theme-muted">
-            {footerText}
-          </p>
+          <p className="mt-3 max-w-xs text-sm leading-relaxed text-theme-muted"> {footerText} </p>
         </div>
 
         <div>
-          <p className="font-display text-sm font-bold uppercase tracking-wider text-gold">
-            Products
-          </p>
+          <p className="font-display text-sm font-bold uppercase tracking-wider text-gold"> Products </p>
           <ul className="mt-4 space-y-2">
             {categories.map((c) => (
               <li key={c.id}>
@@ -45,9 +41,7 @@ export default async function Footer() {
         </div>
 
         <div>
-          <p className="font-display text-sm font-bold uppercase tracking-wider text-gold">
-            Company
-          </p>
+          <p className="font-display text-sm font-bold uppercase tracking-wider text-gold"> Company </p>
           <ul className="mt-4 space-y-2.5">
             <li>
               <Link href="/about" className="text-sm text-theme-muted transition-colors hover:text-gold">
@@ -68,9 +62,7 @@ export default async function Footer() {
         </div>
 
         <div>
-          <p className="font-display text-sm font-bold uppercase tracking-wider text-gold">
-            Visit Showroom
-          </p>
+          <p className="font-display text-sm font-bold uppercase tracking-wider text-gold"> Visit Showroom </p>
           <ul className="mt-4 space-y-3 text-sm text-theme-muted">
             <li className="flex gap-2.5">
               <MapPin size={16} className="mt-0.5 shrink-0 text-gold" />
@@ -95,7 +87,6 @@ export default async function Footer() {
       <div className="border-t border-theme-border py-6">
         <Container className="flex flex-col items-center justify-between gap-3 text-xs text-theme-muted sm:flex-row">
           <p>© {new Date().getFullYear()} Jakhu Fitness. All rights reserved.</p>
-          <p>Alipur Commercial Workshop &amp; Showroom, Delhi</p>
         </Container>
       </div>
     </footer>

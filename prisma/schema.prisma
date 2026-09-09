@@ -61,14 +61,12 @@ model StockMovement {
   date      DateTime @default(now())
 }
 
-// Global Key-Value Settings
 model SiteSetting {
   key       String   @id
   value     String
   updatedAt DateTime @default(now())
 }
 
-// Structured Page Content
 model ContentBlock {
   slug        String   @id
   title       String?
@@ -77,3 +75,61 @@ model ContentBlock {
   metadata    Json?
   updatedAt   DateTime @default(now())
 }
+
+// RBAC & User Management System
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+}
+
+model User {
+  id           String     @id @default(cuid())
+  email        String     @unique
+  passwordHash String
+  name         String
+  phone        String?
+  status       UserStatus @default(ACTIVE)
+  isSuperUser  Boolean    @default(false)
+  roleId       String?
+  role         Role?      @relation(fields: [roleId], references: [id], onDelete: SetNull)
+  preferences  Json?
+  lastLoginAt  DateTime?
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  @@index([email])
+  @@index([roleId])
+}
+
+model Role {
+  id          String           @id @default(cuid())
+  name        String           @unique
+  description String?
+  isSystem    Boolean          @default(false)
+  users       User[]
+  permissions RolePermission[]
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+}
+
+model Permission {
+  id          String           @id @default(cuid())
+  key         String           @unique
+  name        String
+  module      String
+  description String?
+  roles       RolePermission[]
+}
+
+model RolePermission {
+  roleId       String
+  permissionId String
+  role         Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  permission   Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+
+  @@id([roleId, permissionId])
+  @@index([roleId])
+  @@index([permissionId])
+}
+

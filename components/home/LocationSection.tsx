@@ -55,19 +55,13 @@ export default function LocationSection({
           </div>
         </motion.div>
 
-        <motion.div
-          initial={{ opacity: 0, scale: 0.97 }}
+        <motion.div initial={{ opacity: 0, scale: 0.97 }}
           whileInView={{ opacity: 1, scale: 1 }}
           viewport={{ once: true, margin: "-60px" }}
           transition={{ duration: 0.5 }}
-          className="h-85 overflow-hidden rounded-2xl border border-theme-border sm:h-100"
-        >
-          <iframe
-            title="Jakhu Fitness location"
-            src={`https://www.google.com/maps?q=${MAPS_QUERY}&output=embed`}
-            className="h-full w-full grayscale-20"
-            loading="lazy"
-            referrerPolicy="no-referrer-when-downgrade"
+          className="h-85 overflow-hidden rounded-2xl border border-theme-border sm:h-100" >
+          <iframe title="Jakhu Fitness location" src={`https://www.google.com/maps?q=${MAPS_QUERY}&output=embed`}
+            className="h-full w-full grayscale-20" loading="lazy" referrerPolicy="no-referrer-when-downgrade"
           />
         </motion.div>
       </Container>

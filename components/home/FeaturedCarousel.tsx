@@ -1,5 +1,4 @@
 "use client";
-
 import { useRef } from "react";
 import { motion } from "motion/react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
@@ -20,12 +19,8 @@ export default function FeaturedCarousel({ products }: FeaturedCarouselProps) {
     <section className="border-y border-ink/8 bg-white py-20 sm:py-24">
       <Container>
         <div className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
-          <SectionHeading
-            eyebrow="Featured this month"
-            title="Our most requested equipment"
-            description="A shortlist pulled from what studios and home gyms across Delhi are asking for right now."
-            mode="light"
-          />
+          <SectionHeading eyebrow="Featured this month" title="Our most requested equipment"
+            description="A shortlist pulled from what studios and home gyms across Delhi are asking for right now." mode="light" />
           <div className="flex gap-2">
             <button onClick={() => scroll(-1)} aria-label="Scroll left"
               className="flex h-10 w-10 items-center justify-center rounded-full border border-ink/15 text-ink transition-colors hover:border-ink/40">

@@ -1,12 +1,7 @@
-import { products } from "./products";
-import { StockEntry, StockMovement, MovementType } from "./types";
-
 const STOCK_KEY = "jf_stock";
 const MOVEMENTS_KEY = "jf_movements";
-
-// ---------------------------------------------------------------------------
-// Stock entries
-// ---------------------------------------------------------------------------
+import { products } from "./products";
+import { StockEntry, StockMovement, MovementType } from "./types";
 
 function buildDefaults(): StockEntry[] {
   return products.map((p) => ({ productId: p.id, qty: 0, minQty: 2 }));
@@ -18,11 +13,8 @@ export function loadStock(): StockEntry[] {
     const raw = localStorage.getItem(STOCK_KEY);
     if (!raw) return buildDefaults();
     const stored: StockEntry[] = JSON.parse(raw);
-    // Ensure every product has an entry (handles catalog additions after first load)
     const storedIds = new Set(stored.map((e) => e.productId));
-    const missing = products
-      .filter((p) => !storedIds.has(p.id))
-      .map((p) => ({ productId: p.id, qty: 0, minQty: 2 }));
+    const missing = products.filter((p) => !storedIds.has(p.id)).map((p) => ({ productId: p.id, qty: 0, minQty: 2 }));
     return [...stored, ...missing];
   } catch {
     return buildDefaults();
@@ -34,35 +26,17 @@ export function saveStock(entries: StockEntry[]): void {
   localStorage.setItem(STOCK_KEY, JSON.stringify(entries));
 }
 
-export function getStockEntry(
-  entries: StockEntry[],
-  productId: string
-): StockEntry {
+export function getStockEntry(entries: StockEntry[], productId: string): StockEntry {
   return (
-    entries.find((e) => e.productId === productId) ?? {
-      productId,
-      qty: 0,
-      minQty: 2,
-    }
+    entries.find((e) => e.productId === productId) ?? { productId, qty: 0, minQty: 2, }
   );
 }
 
-export function updateEntry(
-  entries: StockEntry[],
-  updated: StockEntry
-): StockEntry[] {
+export function updateEntry(entries: StockEntry[], updated: StockEntry): StockEntry[] {
   const exists = entries.some((e) => e.productId === updated.productId);
-  if (exists) {
-    return entries.map((e) =>
-      e.productId === updated.productId ? updated : e
-    );
-  }
+  if (exists) return entries.map((e) => e.productId === updated.productId ? updated : e);
   return [...entries, updated];
 }
-
-// ---------------------------------------------------------------------------
-// Stock movements
-// ---------------------------------------------------------------------------
 
 export function loadMovements(): StockMovement[] {
   if (typeof window === "undefined") return [];
@@ -76,11 +50,7 @@ export function loadMovements(): StockMovement[] {
 
 export function saveMovements(movements: StockMovement[]): void {
   if (typeof window === "undefined") return;
-  // Keep only the last 200 entries to avoid unbounded growth
-  localStorage.setItem(
-    MOVEMENTS_KEY,
-    JSON.stringify(movements.slice(-200))
-  );
+  localStorage.setItem(MOVEMENTS_KEY, JSON.stringify(movements.slice(-200)));
 }
 
 export function recordMovement(
@@ -100,10 +70,6 @@ export function recordMovement(
   };
   return [...movements, entry];
 }
-
-// ---------------------------------------------------------------------------
-// Derived helpers
-// ---------------------------------------------------------------------------
 
 export type StockStatus = "in-stock" | "low-stock" | "out-of-stock";
 

@@ -1,4 +1,10 @@
+export const ADMIN_COOKIE_NAME = "jhaku_admin_session";
+
 const JWT_SECRET = process.env.JWT_SECRET || "jhaku-fitness-secure-jwt-secret-key-2026";
+
+if (process.env.NODE_ENV === "production" && !process.env.JWT_SECRET) {
+  throw new Error("FATAL: JWT_SECRET environment variable is missing in production.");
+}
 
 function base64UrlEncode(bytes: Uint8Array): string {
   let binary = "";
@@ -44,18 +50,20 @@ export interface AdminJWTPayload {
   role: "admin";
   iat: number;
   exp: number;
+  jti: string;
   [key: string]: unknown;
 }
 
-export async function signJWT(payload: Omit<AdminJWTPayload, "iat" | "exp">, expiresInSeconds: number = 60 * 60 * 24 * 7): Promise<string> {
+export async function signJWT(payload: Omit<AdminJWTPayload, "iat" | "exp" | "jti">, expiresInSeconds: number = 60 * 60 * 24 * 7): Promise<string> {
   const header = { alg: "HS256", typ: "JWT" };
   const now = Math.floor(Date.now() / 1000);
   const fullPayload: AdminJWTPayload = {
     ...payload,
     iat: now,
     exp: now + expiresInSeconds,
-    sub: "",
-    role: "admin"
+    sub: typeof payload.sub === "string" ? payload.sub : "",
+    role: "admin",
+    jti: crypto.randomUUID()
   };
 
   const headerB64 = base64UrlEncode(stringToUint8(JSON.stringify(header)));
@@ -91,6 +99,12 @@ export async function verifyJWT(token: string): Promise<AdminJWTPayload | null> 
     );
 
     if (!isValid) {
+      return null;
+    }
+
+    const headerJson = uint8ToString(base64UrlDecode(headerB64));
+    const header = JSON.parse(headerJson);
+    if (header.alg !== "HS256" || header.typ !== "JWT") {
       return null;
     }
 

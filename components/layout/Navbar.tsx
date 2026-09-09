@@ -1,14 +1,12 @@
 "use client";
-
-import { useEffect, useState } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { motion, AnimatePresence } from "motion/react";
-import { Menu, X, Phone } from "lucide-react";
 import { categories } from "@/lib/products";
-import { Container, Button } from "@/components/ui/Primitives";
-
+import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
+import { Menu, X, Phone } from "lucide-react";
 import ThemeToggle from "@/components/ui/ThemeToggle";
+import { motion, AnimatePresence } from "motion/react";
+import { Container, Button } from "@/components/ui/Primitives";
 
 const NAV_LINKS = [
   { href: "/products", label: "Products" },

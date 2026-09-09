@@ -8,14 +8,14 @@ import { Loader2 } from "lucide-react";
 export default function AdminPage() {
   return (
     <AdminAuthGate>
-      {(logout) => (
+      {(logout, user) => (
         <Suspense
           fallback={
             <div className="flex min-h-screen items-center justify-center bg-[#f8f8f6]">
               <Loader2 className="h-7 w-7 animate-spin text-gold-deep" />
             </div>
           }        >
-          <AdminDashboard onLogout={logout} />
+          <AdminDashboard onLogout={logout} user={user} />
         </Suspense>
       )}
     </AdminAuthGate>

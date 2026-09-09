@@ -1,12 +1,11 @@
 "use client";
-
-import { useMemo, useState } from "react";
-import { motion } from "motion/react";
-import { LayoutGrid, List, SlidersHorizontal } from "lucide-react";
-import ProductCard, { type CardProduct } from "./ProductCard";
-import { CategoryIcon } from "@/components/ui/CategoryIcons";
-import { type CategoryId } from "@/lib/types";
 import clsx from "clsx";
+import { motion } from "motion/react";
+import { useMemo, useState } from "react";
+import { type CategoryId } from "@/lib/types";
+import { CategoryIcon } from "@/components/ui/CategoryIcons";
+import ProductCard, { type CardProduct } from "./ProductCard";
+import { LayoutGrid, List, SlidersHorizontal } from "lucide-react";
 
 export interface DbCategory { id: CategoryId; name: string; blurb: string }
 export interface DbProduct extends CardProduct {
@@ -46,7 +45,6 @@ export default function ProductGrid({ products, categories }: ProductGridProps) 
 
   return (
     <div>
-      {/* category tabs */}
       <div className="flex flex-wrap gap-2.5">
         <button onClick={() => setActiveCategory("all")}
           className={clsx("flex items-center gap-2 rounded-xl border px-4 py-2.5 text-xs sm:text-sm font-semibold transition-all backdrop-blur-md",

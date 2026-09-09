@@ -1,7 +1,5 @@
 "use client";
-
 import { useState } from "react";
-import { motion } from "motion/react";
 import { Container } from "@/components/ui/Primitives";
 import { Calculator, Check, MessageSquare, Sparkles, SlidersHorizontal } from "lucide-react";
 
@@ -53,7 +51,6 @@ export default function GymCalculator({ phone = "+91 93110 37556" }: { phone?: s
           </div>
 
           <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-8">
-            {/* Controls */}
             <div className="space-y-6">
               <div>
                 <label className="block text-xs font-semibold uppercase tracking-wider text-theme-muted mb-3">
@@ -61,15 +58,7 @@ export default function GymCalculator({ phone = "+91 93110 37556" }: { phone?: s
                 </label>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
                   {SETUP_TYPES.map((type) => (
-                    <button
-                      key={type.id}
-                      onClick={() => setSelectedType(type.id)}
-                      className={`rounded-xl border p-3 text-left transition-all ${
-                        selectedType === type.id
-                          ? "border-gold bg-gold/15 text-theme-text shadow-md shadow-gold/10"
-                          : "border-theme-border bg-theme-surface text-theme-muted hover:border-gold/50"
-                      }`}
-                    >
+                    <button key={type.id} onClick={() => setSelectedType(type.id)} className={`rounded-xl border p-3 text-left transition-all ${selectedType === type.id ? "border-gold bg-gold/15 text-theme-text shadow-md shadow-gold/10" : "border-theme-border bg-theme-surface text-theme-muted hover:border-gold/50"}`}  >
                       <p className="text-xs font-semibold">{type.label}</p>
                     </button>
                   ))}
@@ -83,15 +72,7 @@ export default function GymCalculator({ phone = "+91 93110 37556" }: { phone?: s
                   </label>
                   <span className="text-sm font-bold text-gold">{sqft} sq ft</span>
                 </div>
-                <input
-                  type="range"
-                  min="200"
-                  max="5000"
-                  step="50"
-                  value={sqft}
-                  onChange={(e) => setSqft(Number(e.target.value))}
-                  className="w-full h-2 rounded-lg bg-theme-border appearance-none cursor-pointer accent-gold"
-                />
+                <input type="range" min="200" max="5000" step="50" value={sqft} onChange={(e) => setSqft(Number(e.target.value))} className="w-full h-2 rounded-lg bg-theme-border appearance-none cursor-pointer accent-gold" />
                 <div className="flex justify-between text-[10px] text-theme-muted mt-1">
                   <span>200 sq ft (Compact Studio)</span>
                   <span>5,000 sq ft (Mega Commercial)</span>
@@ -99,7 +80,6 @@ export default function GymCalculator({ phone = "+91 93110 37556" }: { phone?: s
               </div>
             </div>
 
-            {/* Recommendations & Action */}
             <div className="rounded-2xl border border-theme-border bg-theme-surface p-6 flex flex-col justify-between">
               <div>
                 <h4 className="text-xs font-semibold uppercase tracking-wider text-gold flex items-center gap-1.5">
@@ -122,12 +102,7 @@ export default function GymCalculator({ phone = "+91 93110 37556" }: { phone?: s
                 </ul>
               </div>
 
-              <a
-                href={`https://wa.me/${phone.replace(/\\D/g, "")}?text=${whatsappMessage}`}
-                target="_blank"
-                rel="noreferrer"
-                className="mt-6 flex items-center justify-center gap-2.5 rounded-xl bg-gold px-6 py-3.5 text-sm font-semibold text-ink transition-transform hover:scale-[1.02] shadow-lg shadow-gold/20"
-              >
+              <a href={`https://wa.me/${phone.replace(/\\D/g, "")}?text=${whatsappMessage}`} target="_blank" rel="noreferrer" className="mt-6 flex items-center justify-center gap-2.5 rounded-xl bg-gold px-6 py-3.5 text-sm font-semibold text-ink transition-transform hover:scale-[1.02] shadow-lg shadow-gold/20" >
                 <MessageSquare size={16} />
                 Get Itemized Quote on WhatsApp
               </a>

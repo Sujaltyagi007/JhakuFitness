@@ -1,9 +1,8 @@
 "use client";
-
 import { useState, FormEvent } from "react";
-import { motion, AnimatePresence } from "motion/react";
-import { CheckCircle2, Send } from "lucide-react";
 import { toast } from "@/components/ui/Toast";
+import { CheckCircle2, Send } from "lucide-react";
+import { motion, AnimatePresence } from "motion/react";
 import CountrieCodeBtn from "@/components/ui/CountrieCodeBtn";
 import { COUNTRIES, type Country } from "@/lib/hooks/Countrielist";
 
@@ -85,11 +84,7 @@ export default function ContactForm({ phone = "+91 93110 37556" }: { phone?: str
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
         <div>
           <label className="text-xs font-semibold px-3 uppercase tracking-wider text-theme-muted">Full Name *</label>
-          <input value={form.name} onChange={(e) => { const val = e.target.value.replace(/^\s+/, '').replace(/[0-9]/g, '').slice(0, 55); update("name", val); }}
-            maxLength={55}
-            className="mt-0 w-full rounded-2xl border border-theme-border bg-theme-bg px-4 py-3 text-sm text-theme-text placeholder:text-theme-muted/50 focus:border-gold focus:outline-none"
-            placeholder="Your name"
-          />
+          <input value={form.name} onChange={(e) => { const val = e.target.value.replace(/^\s+/, '').replace(/[0-9]/g, '').slice(0, 55); update("name", val); }} maxLength={55} className="mt-0 w-full rounded-2xl border border-theme-border bg-theme-bg px-4 py-3 text-sm text-theme-text placeholder:text-theme-muted/50 focus:border-gold focus:outline-none" placeholder="Your name" />
           {errors.name && (
             <p className="mt-1.5 text-xs text-red-400 font-medium">{errors.name}</p>
           )}
@@ -97,22 +92,11 @@ export default function ContactForm({ phone = "+91 93110 37556" }: { phone?: str
         <div>
           <label className="text-xs font-semibold px-3 uppercase tracking-wider text-theme-muted">Phone Number *</label>
           <div className="mt-0 flex w-full items-stretch overflow-hidden rounded-2xl border border-theme-border bg-theme-bg focus-within:border-gold transition-colors">
-            <CountrieCodeBtn
-              value={country}
-              onChange={setCountry}
-              autoDetected={false}
-              onManualChange={() => { }}
-              className="bg-transparent! border-0! rounded-none! px-3! py-3 text-theme-text! hover:bg-theme-border/30!"
-            />
-            <input
-              value={form.phone}
-              onChange={(e) => {
-                const val = e.target.value.replace(/[^0-9]/g, '');
-                update("phone", val);
-              }}
-              maxLength={country.len}
-              className="w-full bg-transparent px-2 py-3 text-sm text-theme-text placeholder:text-theme-muted/50 focus:outline-none"
-              placeholder="98xxxxxxxx"
+            <CountrieCodeBtn value={country} onChange={setCountry} autoDetected={false} onManualChange={() => { }} className="bg-transparent! border-0! rounded-none! px-3! py-3 text-theme-text! hover:bg-theme-border/30!" />
+            <input value={form.phone} onChange={(e) => {
+              const val = e.target.value.replace(/[^0-9]/g, '');
+              update("phone", val);
+            }} maxLength={country.len} className="w-full bg-transparent px-2 py-3 text-sm text-theme-text placeholder:text-theme-muted/50 focus:outline-none" placeholder="98xxxxxxxx"
             />
           </div>
         </div>
@@ -120,10 +104,7 @@ export default function ContactForm({ phone = "+91 93110 37556" }: { phone?: str
 
       <div>
         <label className="text-xs font-semibold px-3 uppercase tracking-wider text-theme-muted">Email Address</label>
-        <input
-          value={form.email}
-          onChange={(e) => update("email", e.target.value.slice(0, 55))}
-          maxLength={55}
+        <input value={form.email} onChange={(e) => update("email", e.target.value.slice(0, 55))} maxLength={55}
           className="mt-0 w-full rounded-2xl border border-theme-border bg-theme-bg px-4 py-3 text-sm text-theme-text placeholder:text-theme-muted/50 focus:border-gold focus:outline-none"
           placeholder="you@company.com"
         />

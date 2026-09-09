@@ -226,3 +226,22 @@ export const validatePhoneNumber = (phone: string | number, country: Country): {
 
     return { isValid: true };
 };
+
+/** Splits a stored "+91 9876543210"-style phone string back into its country + local digits, for pre-filling a CountrieCodeBtn + input pair (e.g. when opening an edit form). Falls back to `fallback` when nothing matches. */
+export const parsePhone = (stored: string | null | undefined, fallback: Country): { country: Country; local: string } => {
+    const trimmed = (stored || "").trim();
+    if (!trimmed) return { country: fallback, local: "" };
+
+    const match = COUNTRIES
+        .filter((c) => trimmed.startsWith(c.dial))
+        .sort((a, b) => b.dial.length - a.dial.length)[0]; // longest dial code wins (e.g. "+1-268" over "+1")
+
+    if (!match) return { country: fallback, local: trimmed.replace(/\D/g, "") };
+    return { country: match, local: trimmed.slice(match.dial.length).replace(/\D/g, "") };
+};
+
+/** Combines a selected country + the digits typed into the local-number field back into one storable phone string. Returns "" when there are no digits, so an empty phone field stays empty rather than becoming just a dial code. */
+export const formatPhone = (country: Country, local: string): string => {
+    const digits = local.replace(/\D/g, "");
+    return digits ? `${country.dial} ${digits}` : "";
+};

@@ -113,47 +113,25 @@ export default function ProductViewer3D({
 
   return (
     <div className={`relative ${className}`}>
-      <Scene
-        cameraPosition={[3.2, 1.2, 4.2]}
-        autoRotate
-        autoRotateSpeed={0.8}
-        controlsRef={controlsRef}
-      >
+      <Scene cameraPosition={[3.2, 1.2, 4.2]} autoRotate autoRotateSpeed={0.8} controlsRef={controlsRef} >
         <EquipmentModel kind={kind} colorway={colorway} />
         {showHotspots && <Hotspots kind={kind} />}
       </Scene>
 
       <div className="absolute bottom-4 right-4 flex flex-col gap-2">
-        <button
-          onClick={() => zoom(1)}
-          aria-label="Zoom in"
-          className="flex h-9 w-9 items-center justify-center rounded-full bg-white/90 text-ink shadow-md ring-1 ring-black/5 backdrop-blur transition hover:bg-white"
-        >
+        <button onClick={() => zoom(1)} aria-label="Zoom in" className="flex h-9 w-9 items-center justify-center rounded-full bg-white/90 text-ink shadow-md ring-1 ring-black/5 backdrop-blur transition hover:bg-white">
           <Plus size={16} />
         </button>
-        <button
-          onClick={() => zoom(-1)}
-          aria-label="Zoom out"
-          className="flex h-9 w-9 items-center justify-center rounded-full bg-white/90 text-ink shadow-md ring-1 ring-black/5 backdrop-blur transition hover:bg-white"
-        >
+        <button onClick={() => zoom(-1)} aria-label="Zoom out" className="flex h-9 w-9 items-center justify-center rounded-full bg-white/90 text-ink shadow-md ring-1 ring-black/5 backdrop-blur transition hover:bg-white">
           <Minus size={16} />
         </button>
-        <button
-          onClick={reset}
-          aria-label="Reset view"
-          className="flex h-9 w-9 items-center justify-center rounded-full bg-white/90 text-ink shadow-md ring-1 ring-black/5 backdrop-blur transition hover:bg-white"
-        >
+        <button onClick={reset} aria-label="Reset view" className="flex h-9 w-9 items-center justify-center rounded-full bg-white/90 text-ink shadow-md ring-1 ring-black/5 backdrop-blur transition hover:bg-white">
           <RotateCcw size={14} />
         </button>
       </div>
-
-      <button
-        onClick={() => setShowHotspots((s) => !s)}
-        className="absolute bottom-4 left-4 rounded-full bg-white/90 px-3 py-2 text-xs font-medium text-ink shadow-md ring-1 ring-black/5 backdrop-blur transition hover:bg-white"
-      >
+      <button onClick={() => setShowHotspots((s) => !s)} className="absolute bottom-4 left-4 rounded-full bg-white/90 px-3 py-2 text-xs font-medium text-ink shadow-md ring-1 ring-black/5 backdrop-blur transition hover:bg-white">
         {showHotspots ? "Hide details" : "Show details"}
       </button>
-
       <p className="pointer-events-none absolute left-4 top-4 rounded-full bg-ink/80 px-3 py-1.5 text-xs text-white backdrop-blur">
         Drag to rotate · scroll to zoom
       </p>

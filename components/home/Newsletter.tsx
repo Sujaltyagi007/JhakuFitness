@@ -1,8 +1,7 @@
 "use client";
-
-import { useState, FormEvent } from "react";
-import { motion } from "motion/react";
 import { Send } from "lucide-react";
+import { motion } from "motion/react";
+import { useState, FormEvent } from "react";
 import { Container } from "@/components/ui/Primitives";
 
 interface NewsletterProps {

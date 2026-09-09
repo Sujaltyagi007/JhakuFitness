@@ -21,7 +21,7 @@ When rules conflict, resolve in this order:
 - No new abstractions until at least two concrete call sites need them. Never duplicate business logic.
 - TypeScript strict mode: no `any`, no unchecked casts, no `@ts-ignore`. Explicit types at module boundaries, clear interfaces for all data structures.
 - Validate inputs at boundaries. Handle null, undefined, and failure paths with actionable error messages. Never swallow errors.
-
+- API Client Functions: Whenever creating or interacting with backend API routes, always create a corresponding strongly-typed fetch function in `lib/api.ts` and consume that function in components, rather than calling `fetch()` directly.
 
 ## Testing
 - Test only changed or added behavior.

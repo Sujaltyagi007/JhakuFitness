@@ -2,11 +2,23 @@
 import { Input } from "@/components/ui/input";
 import { toast } from "@/components/ui/Toast";
 import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
+import { StatCardSkeleton, ContentHeaderSkeleton, TableRowSkeleton } from "@/components/ui/Skeletons";
 import { useCallback, useEffect, useState } from "react";
 import { useDebouncedCallback } from "@/lib/useDebouncedCallback";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Package, TrendingUp, TrendingDown, RotateCcw, ChevronDown, ChevronUp, AlertTriangle, IndianRupee, RefreshCw, Loader2 } from "lucide-react";
+import { getInventory, getMovements, updateInventory, recordMovement } from "@/lib/api";
+import { formatCurrency, formatTime } from "@/lib/utils";
+import { usePreferences } from "@/components/admin/PreferencesProvider";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
 
 // ─── types ────────────────────────────────────────────────────────────────────
 
@@ -42,14 +54,6 @@ function getStatus(row: StockRow): StockStatus {
 
 function fmt(n: number) { return new Intl.NumberFormat("en-IN").format(n); }
 
-function fmtCurrency(n: number) {
-  return new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 }).format(n);
-}
-
-function fmtDate(iso: string) {
-  return new Date(iso).toLocaleString("en-IN", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" });
-}
-
 function StatusBadge({ status }: { status: StockStatus }) {
   if (status === "in-stock") return <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-xs font-semibold text-emerald-700 border border-emerald-200">In Stock</span>;
   if (status === "low-stock") return <span className="inline-flex items-center gap-1 rounded-full bg-amber-50 px-2 py-0.5 text-xs font-semibold text-amber-700 border border-amber-200"><AlertTriangle size={10} /> Low</span>;
@@ -59,6 +63,12 @@ function StatusBadge({ status }: { status: StockStatus }) {
 // ─── component ────────────────────────────────────────────────────────────────
 
 export default function InventoryTab() {
+  const { preferences } = usePreferences();
+  const currency = (preferences.currency as "INR" | "USD") || "INR";
+  const timeFormat = (preferences.timeFormat as "12h" | "24h") || "12h";
+  const fmtCurrency = (n: number) => formatCurrency(n, currency);
+  const fmtDate = (iso: string) => formatTime(iso, timeFormat);
+
   const [stock, setStock] = useState<StockRow[]>([]);
   const [movements, setMovements] = useState<Movement[]>([]);
   const [qtyInputs, setQtyInputs] = useState<Record<string, string>>({});
@@ -73,6 +83,9 @@ export default function InventoryTab() {
   // double-click can't fire two overlapping movements against the same SKU.
   const [pendingRows, setPendingRows] = useState<Set<string>>(new Set());
 
+  // Pagination state
+  const [page, setPage] = useState(1);
+  const ITEMS_PER_PAGE = 10;
   const setRowPending = (productId: string, pending: boolean) => {
     setPendingRows((prev) => {
       const next = new Set(prev);
@@ -96,14 +109,12 @@ export default function InventoryTab() {
     setLoading(true);
     setLoadError(null);
     try {
-      const [sRes, mRes] = await Promise.all([
-        fetch("/api/admin/inventory"),
-        fetch("/api/admin/movements"),
+      const [sData, mData] = await Promise.all([
+        getInventory(),
+        getMovements(),
       ]);
-      if (!sRes.ok || !mRes.ok) throw new Error("Failed to load inventory data.");
-      const [sData, mData] = await Promise.all([sRes.json(), mRes.json()]);
-      setStock(sData);
-      setMovements(mData);
+      setStock(sData as StockRow[]);
+      setMovements(mData as Movement[]);
     } catch (err) {
       setLoadError(err instanceof Error ? err.message : "Failed to load inventory data.");
     } finally {
@@ -125,13 +136,7 @@ export default function InventoryTab() {
     setStock((prev) => prev.map((s) => s.productId === productId ? { ...s, qty: Math.max(0, s.qty + delta) } : s));
 
     try {
-      const res = await fetch("/api/admin/movements", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ productId, type, qty: Math.abs(qty), note }),
-      });
-      if (!res.ok) throw new Error(`Server rejected the movement (${res.status})`);
-      const saved = await res.json() as Movement;
+      const saved = await recordMovement({ productId, type, qty: Math.abs(qty), note }) as Movement;
       setMovements((prev) => [{ ...saved, product: { name: productName } }, ...prev]);
       toast.success(`Stock updated: ${productName} (${type === "IN" ? "+" : type === "OUT" ? "-" : ""}${Math.abs(qty)})`);
     } catch (err) {
@@ -159,12 +164,7 @@ export default function InventoryTab() {
   const saveMinQty = useCallback(async (productId: string, minQty: number) => {
     const previousStock = stock;
     try {
-      const res = await fetch("/api/admin/inventory", {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ productId, minQty }),
-      });
-      if (!res.ok) throw new Error(`Server rejected the update (${res.status})`);
+      await updateInventory({ productId, minQty });
     } catch (err) {
       setStock(previousStock);
       setRowError(productId, err instanceof Error ? err.message : "Update failed");
@@ -187,12 +187,7 @@ export default function InventoryTab() {
     setPriceInputs((p) => ({ ...p, [productId]: "" }));
     setEditingPrice(null);
     try {
-      const res = await fetch("/api/admin/inventory", {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ productId, price: parsed }),
-      });
-      if (!res.ok) throw new Error(`Server rejected the price update (${res.status})`);
+      await updateInventory({ productId, price: parsed });
     } catch (err) {
       setStock(previousStock);
       setRowError(productId, err instanceof Error ? err.message : "Price update failed");
@@ -208,21 +203,20 @@ export default function InventoryTab() {
     return (
       <div className="space-y-6">
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-          <Skeleton className="h-28 w-full rounded-xl" />
-          <Skeleton className="h-28 w-full rounded-xl" />
-          <Skeleton className="h-28 w-full rounded-xl" />
-          <Skeleton className="h-28 w-full rounded-xl" />
+          <StatCardSkeleton />
+          <StatCardSkeleton />
+          <StatCardSkeleton />
+          <StatCardSkeleton />
         </div>
         <Card>
           <CardHeader>
-            <Skeleton className="h-6 w-48 mb-2" />
-            <Skeleton className="h-4 w-64" />
+            <ContentHeaderSkeleton />
           </CardHeader>
           <CardContent className="space-y-4">
-            <Skeleton className="h-12 w-full rounded-lg" />
-            <Skeleton className="h-12 w-full rounded-lg" />
-            <Skeleton className="h-12 w-full rounded-lg" />
-            <Skeleton className="h-12 w-full rounded-lg" />
+            <TableRowSkeleton />
+            <TableRowSkeleton />
+            <TableRowSkeleton />
+            <TableRowSkeleton />
           </CardContent>
         </Card>
       </div>
@@ -310,7 +304,7 @@ export default function InventoryTab() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-ink/8">
-                {stock.map((s) => {
+                {stock.slice((page - 1) * ITEMS_PER_PAGE, page * ITEMS_PER_PAGE).map((s) => {
                   const status = getStatus(s);
                   const price = s.product.price;
                   const isPending = pendingRows.has(s.productId);
@@ -390,10 +384,54 @@ export default function InventoryTab() {
               </tbody>
             </table>
           </div>
+          {stock.length > 0 && (
+            <div className="flex flex-wrap items-center justify-center sm:justify-between gap-3 border-t border-ink/8 px-4 py-3">
+              <div className="text-sm text-steel">
+                Showing <span className="font-medium text-ink">{(page - 1) * ITEMS_PER_PAGE + 1}</span> to{" "}
+                <span className="font-medium text-ink">
+                  {Math.min(page * ITEMS_PER_PAGE, stock.length)}
+                </span>{" "}
+                of <span className="font-medium text-ink">{stock.length}</span> items (Total Pages: {Math.ceil(stock.length / ITEMS_PER_PAGE)})
+              </div>
+              <Pagination className="w-auto mx-0">
+                <PaginationContent>
+                  <PaginationItem>
+                    <PaginationPrevious onClick={() => setPage((p) => Math.max(1, p - 1))} className={page === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"} />
+                  </PaginationItem>
+
+                  {Array.from({ length: Math.ceil(stock.length / ITEMS_PER_PAGE) }).map((_, i) => {
+                    const p = i + 1;
+                    if (p === 1 || p === Math.ceil(stock.length / ITEMS_PER_PAGE) || Math.abs(p - page) <= 1) {
+                      return (
+                        <PaginationItem key={p}>
+                          <PaginationLink isActive={p === page} onClick={() => setPage(p)} className="cursor-pointer">
+                            {p}
+                          </PaginationLink>
+                        </PaginationItem>
+                      );
+                    }
+                    if (Math.abs(p - page) === 2) {
+                      return (
+                        <PaginationItem key={p}>
+                          <PaginationEllipsis />
+                        </PaginationItem>
+                      );
+                    }
+                    return null;
+                  })}
+
+                  <PaginationItem>
+                    <PaginationNext
+                      onClick={() => setPage((p) => Math.min(Math.ceil(stock.length / ITEMS_PER_PAGE), p + 1))}
+                      className={page === Math.ceil(stock.length / ITEMS_PER_PAGE) ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                    />
+                  </PaginationItem>
+                </PaginationContent>
+              </Pagination>
+            </div>
+          )}
         </CardContent>
       </Card>
-
-      {/* Movement Log */}
       <Card>
         <CardHeader>
           <button className="flex w-full items-center justify-between text-left" onClick={() => setShowLog((v) => !v)}>
@@ -425,14 +463,7 @@ export default function InventoryTab() {
                       <tr key={m.id} className="hover:bg-ink/2 transition-colors">
                         <td className="px-4 py-2.5 text-xs text-steel whitespace-nowrap">{fmtDate(m.date)}</td>
                         <td className="px-4 py-2.5"><span className="font-medium text-ink">{m.product.name}</span></td>
-                        <td className="px-4 py-2.5">
-                          {m.type === "IN" ? (
-                            <span className="inline-flex items-center gap-1 text-xs font-semibold text-emerald-700"><TrendingUp size={12} /> IN</span>
-                          ) : m.type === "OUT" ? (
-                            <span className="inline-flex items-center gap-1 text-xs font-semibold text-red-600"><TrendingDown size={12} /> OUT</span>
-                          ) : (
-                            <span className="inline-flex items-center gap-1 text-xs font-semibold text-steel"><RotateCcw size={12} /> ADJ</span>
-                          )}
+                        <td className="px-4 py-2.5"> {m.type === "IN" ? (<span className="inline-flex items-center gap-1 text-xs font-semibold text-emerald-700"><TrendingUp size={12} /> IN</span>) : m.type === "OUT" ? (<span className="inline-flex items-center gap-1 text-xs font-semibold text-red-600"><TrendingDown size={12} /> OUT</span>) : (<span className="inline-flex items-center gap-1 text-xs font-semibold text-steel"><RotateCcw size={12} /> ADJ</span>) }
                         </td>
                         <td className="px-4 py-2.5 text-center font-semibold">{m.qty}</td>
                         <td className="px-4 py-2.5 text-xs text-steel">{m.note}</td>

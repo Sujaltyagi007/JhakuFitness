@@ -1,10 +1,13 @@
+import "../globals.css";
+import { prisma } from "@/lib/prisma";
 import type { Metadata } from "next";
 import { Outfit, Inter } from "next/font/google";
-import "../globals.css";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import { ToastProvider } from "@/components/ui/Toast";
 import { ThemeProvider } from "@/components/ui/ThemeContext";
+import LiveNotificationListener from "@/components/LiveNotificationListener";
+import { NotificationProvider } from "@/components/NotificationContext";
 
 const outfit = Outfit({
   variable: "--font-outfit",
@@ -31,8 +34,6 @@ export const metadata: Metadata = {
   ],
 };
 
-import { prisma } from "@/lib/prisma";
-
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const phoneSetting = await prisma.siteSetting.findUnique({
     where: { key: "site.phone" }
@@ -42,13 +43,16 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   return (
     <html lang="en" data-scroll-behavior="smooth" className={`${outfit.variable} ${inter.variable} h-full`}>
       <body className="flex min-h-full flex-col bg-theme-bg text-theme-text antialiased transition-colors duration-300">
-        <ThemeProvider>
-          <ToastProvider>
-            <Navbar phone={phone} />
-            <main className="flex-1">{children}</main>
-            <Footer />
-          </ToastProvider>
-        </ThemeProvider>
+        <NotificationProvider>
+          <ThemeProvider>
+            <ToastProvider>
+              <Navbar phone={phone} />
+              <main className="flex-1">{children}</main>
+              <Footer />
+              <LiveNotificationListener />
+            </ToastProvider>
+          </ThemeProvider>
+        </NotificationProvider>
       </body>
     </html>
   );

@@ -34,13 +34,10 @@ export default function ValueProps({ items }: ValuePropsProps) {
             const iconKey = typeof meta?.icon === "string" ? meta.icon : "ShieldCheck";
             const Icon = ICON_MAP[iconKey] ?? ShieldCheck;
             return (
-              <motion.div
-                key={v.slug}
-                initial={{ opacity: 0, y: 16 }}
+              <motion.div key={v.slug} initial={{ opacity: 0, y: 16 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: "-60px" }}
-                transition={{ duration: 0.5, delay: i * 0.08 }}
-              >
+                transition={{ duration: 0.5, delay: i * 0.08 }} >
                 <div className="flex h-11 w-11 items-center justify-center rounded-full bg-theme-surface border border-theme-border text-gold shadow-sm">
                   <Icon size={19} />
                 </div>

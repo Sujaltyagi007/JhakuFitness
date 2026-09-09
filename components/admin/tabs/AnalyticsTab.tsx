@@ -19,7 +19,9 @@ import {
   Loader2,
   type LucideIcon,
 } from "lucide-react";
-import { Skeleton } from "@/components/ui/skeleton";
+import { StatCardSkeleton, ChartSkeleton } from "@/components/ui/Skeletons";
+import { getInventory, getProducts, getCategories } from "@/lib/api";
+import { usePreferences } from "@/components/admin/PreferencesProvider";
 
 interface DbCategory { id: string; name: string }
 interface DbProduct { id: string; categoryId: string; featured: boolean }
@@ -35,12 +37,16 @@ function getStockStatus(s: StockEntry): StockStatus {
 
 // ─── helpers ────────────────────────────────────────────────────────────────
 
-function fmtCurrency(n: number) {
-  if (n >= 10_00_000)
-    return `₹${(n / 10_00_000).toFixed(1)}L`;
-  if (n >= 1_000)
-    return `₹${(n / 1_000).toFixed(1)}K`;
-  return `₹${n}`;
+function fmtCurrency(n: number, currency: "INR" | "USD" = "INR") {
+  const symbol = currency === "USD" ? "$" : "₹";
+  if (currency === "INR") {
+    if (n >= 10_00_000) return `${symbol}${(n / 10_00_000).toFixed(1)}L`;
+    if (n >= 1_000) return `${symbol}${(n / 1_000).toFixed(1)}K`;
+    return `${symbol}${n}`;
+  }
+  if (n >= 1_000_000) return `${symbol}${(n / 1_000_000).toFixed(1)}M`;
+  if (n >= 1_000) return `${symbol}${(n / 1_000).toFixed(1)}K`;
+  return `${symbol}${n}`;
 }
 
 
@@ -82,7 +88,7 @@ function HBarChart({
     <div className="space-y-2.5">
       {data.map((d) => (
         <div key={d.label} className="flex items-center gap-3">
-          <span className="w-40 shrink-0 truncate text-xs text-ink font-medium">
+          <span className="w-28 sm:w-40 shrink-0 truncate text-xs text-ink font-medium">
             {d.label}
           </span>
           <div className="flex-1 rounded-full bg-ink/8 h-2.5 overflow-hidden">
@@ -91,7 +97,7 @@ function HBarChart({
               style={{ width: `${maxValue ? (d.value / maxValue) * 100 : 0}%` }}
             />
           </div>
-          <span className="w-8 text-right text-xs font-semibold text-ink">
+          <span className="min-w-8 shrink-0 text-right text-xs font-semibold text-ink tabular-nums">
             {d.value}
           </span>
         </div>
@@ -100,11 +106,7 @@ function HBarChart({
   );
 }
 
-// Donut-style segmented bar
-function StockHealthBar({
-  inStock,
-  lowStock,
-  outOfStock,
+function StockHealthBar({ inStock, lowStock, outOfStock,
   total,
 }: {
   inStock: number;
@@ -162,6 +164,9 @@ function StockHealthBar({
 // ─── main component ──────────────────────────────────────────────────────────
 
 export default function AnalyticsTab() {
+  const { preferences } = usePreferences();
+  const currency = (preferences.currency as "INR" | "USD") || "INR";
+
   const [stock, setStock] = useState<StockEntry[]>([]);
   const [products, setProducts] = useState<DbProduct[]>([]);
   const [categories, setCategories] = useState<DbCategory[]>([]);
@@ -169,13 +174,13 @@ export default function AnalyticsTab() {
 
   useEffect(() => {
     Promise.all([
-      fetch("/api/admin/inventory").then(r => r.json()),
-      fetch("/api/admin/products").then(r => r.json()),
-      fetch("/api/admin/categories").then(r => r.json()),
+      getInventory(),
+      getProducts(),
+      getCategories(),
     ]).then(([sData, pData, cData]) => {
-      setStock(sData);
-      setProducts(pData);
-      setCategories(cData);
+      setStock(sData as StockEntry[]);
+      setProducts(pData as DbProduct[]);
+      setCategories(cData as DbCategory[]);
     }).finally(() => setLoading(false));
   }, []);
 
@@ -183,14 +188,14 @@ export default function AnalyticsTab() {
     return (
       <div className="space-y-6">
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-          <Skeleton className="h-28 w-full rounded-xl" />
-          <Skeleton className="h-28 w-full rounded-xl" />
-          <Skeleton className="h-28 w-full rounded-xl" />
-          <Skeleton className="h-28 w-full rounded-xl" />
+          <StatCardSkeleton />
+          <StatCardSkeleton />
+          <StatCardSkeleton />
+          <StatCardSkeleton />
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <Skeleton className="h-64 w-full rounded-xl" />
-          <Skeleton className="h-64 w-full rounded-xl" />
+          <ChartSkeleton />
+          <ChartSkeleton />
         </div>
       </div>
     );
@@ -231,35 +236,13 @@ export default function AnalyticsTab() {
     <div className="space-y-6">
       {/* KPI row */}
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-        <KpiCard
-          label="Total Products"
-          value={products.length}
-          sub="In active catalog"
-          icon={Package}
-        />
-        <KpiCard
-          label="Featured Flagships"
-          value={featuredCount}
-          sub="Pinned on carousel"
-          icon={Star}
-        />
-        <KpiCard
-          label="Total Stock Units"
-          value={totalUnits}
-          sub="Across all SKUs"
-          icon={Layers}
-        />
-        <KpiCard
-          label="Inventory Value"
-          value={fmtCurrency(totalValue)}
-          sub="Ex-GST estimate"
-          icon={IndianRupee}
-          accent={totalValue > 0 ? "text-emerald-600" : "text-steel"}
-        />
+        <KpiCard label="Total Products" value={products.length} sub="In active catalog" icon={Package} />
+        <KpiCard label="Featured Flagships" value={featuredCount} sub="Pinned on carousel" icon={Star} />
+        <KpiCard label="Total Stock Units" value={totalUnits} sub="Across all SKUs" icon={Layers} />
+        <KpiCard label="Inventory Value" value={fmtCurrency(totalValue, currency)} sub="Ex-GST estimate" icon={IndianRupee} accent={totalValue > 0 ? "text-emerald-600" : "text-steel"} />
       </div>
 
-      {/* Stock health + category breakdowns */}
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -271,12 +254,7 @@ export default function AnalyticsTab() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <StockHealthBar
-              inStock={inStockCount}
-              lowStock={lowStockCount}
-              outOfStock={outCount}
-              total={products.length}
-            />
+            <StockHealthBar inStock={inStockCount} lowStock={lowStockCount} outOfStock={outCount} total={products.length} />
           </CardContent>
         </Card>
 
@@ -289,16 +267,11 @@ export default function AnalyticsTab() {
             <CardDescription>Products per equipment class</CardDescription>
           </CardHeader>
           <CardContent>
-            <HBarChart
-              data={categoryBreakdown}
-              maxValue={maxCatValue}
-              colorClass="bg-gold"
-            />
+            <HBarChart data={categoryBreakdown} maxValue={maxCatValue} colorClass="bg-gold" />
           </CardContent>
         </Card>
       </div>
 
-      {/* Stock units by category */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -310,16 +283,11 @@ export default function AnalyticsTab() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <HBarChart
-            data={stockByCategory}
-            maxValue={maxStockValue}
-            colorClass="bg-emerald-500"
-          />
+          <HBarChart data={stockByCategory} maxValue={maxStockValue} colorClass="bg-emerald-500" />
         </CardContent>
       </Card>
 
-      {/* Top stocked */}
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
         <Card>
           <CardHeader>
             <CardTitle>Top Stocked SKUs</CardTitle>
@@ -327,30 +295,20 @@ export default function AnalyticsTab() {
           </CardHeader>
           <CardContent>
             {topStocked.every((e) => e.qty === 0) ? (
-              <p className="text-sm text-steel">
-                No stock recorded yet. Go to the Inventory tab to add units.
-              </p>
+              <p className="text-sm text-steel">No stock recorded yet. Go to the Inventory tab to add units.</p>
             ) : (
               <ol className="space-y-2">
                 {topStocked.map((e, i) => (
                   <li key={e.productId} className="flex items-center gap-3">
-                    <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-gold/15 text-xs font-bold text-gold-deep">
-                      {i + 1}
-                    </span>
-                    <span className="flex-1 truncate text-sm font-medium text-ink">
-                      {e.product.name}
-                    </span>
-                    <span className="font-display text-lg font-bold text-ink">
-                      {e.qty}
-                    </span>
+                    <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-gold/15 text-xs font-bold text-gold-deep">{i + 1}</span>
+                    <span className="flex-1 truncate text-sm font-medium text-ink"> {e.product.name}</span>
+                    <span className="font-display text-lg font-bold text-ink">{e.qty}</span>
                   </li>
                 ))}
               </ol>
             )}
           </CardContent>
         </Card>
-
-        {/* Low stock / out alerts */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -363,19 +321,12 @@ export default function AnalyticsTab() {
           </CardHeader>
           <CardContent>
             {lowAlerts.length === 0 ? (
-              <p className="text-sm text-emerald-700 font-medium">
-                ✓ All products are above their reorder threshold.
-              </p>
+              <p className="text-sm text-emerald-700 font-medium">✓ All products are above their reorder threshold.</p>
             ) : (
               <ul className="space-y-2">
                 {lowAlerts.map((e) => (
-                  <li
-                    key={e.productId}
-                    className="flex items-center justify-between rounded-lg border border-ink/8 px-3 py-2"
-                  >
-                    <span className="text-sm font-medium text-ink truncate">
-                      {e.product.name}
-                    </span>
+                  <li key={e.productId} className="flex items-center justify-between rounded-lg border border-ink/8 px-3 py-2">
+                    <span className="text-sm font-medium text-ink truncate">{e.product.name}</span>
                     <div className="flex items-center gap-2 shrink-0 ml-2">
                       <span className="text-sm font-bold text-ink">{e.qty} units</span>
                       {e.status === "out-of-stock" ? (

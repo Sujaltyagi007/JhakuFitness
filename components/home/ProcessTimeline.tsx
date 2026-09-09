@@ -49,14 +49,12 @@ export default function ProcessTimeline() {
           {STEPS.map((s, idx) => {
             const Icon = s.icon;
             return (
-              <motion.div
-                key={s.step}
+              <motion.div key={s.step}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: "-50px" }}
                 transition={{ duration: 0.5, delay: idx * 0.1 }}
-                className="relative rounded-2xl border border-theme-border bg-theme-bg p-6 backdrop-blur-md flex flex-col justify-between group hover:border-gold/50 transition-colors"
-              >
+                className="relative rounded-2xl border border-theme-border bg-theme-bg p-6 backdrop-blur-md flex flex-col justify-between group hover:border-gold/50 transition-colors">
                 <div>
                   <div className="flex items-center justify-between">
                     <span className="font-display text-2xl font-bold text-gold/60 group-hover:text-gold transition-colors">

@@ -11,6 +11,8 @@ type PickerProps = {
     className?: string;
 }
 
+const DROPDOWN_WIDTH = 288;
+
 export const FlagImg = ({ code, className = "" }: { code: string; className?: string }) => (
     <img src={`https://flagcdn.com/w40/${code.toLowerCase()}.png`} alt={code} aria-hidden="true" className={`inline-block object-contain ${className}`} loading="lazy" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} />
 );
@@ -51,9 +53,10 @@ const CountrieCodeBtn = ({ value, onChange, autoDetected, onManualChange, classN
         const updatePosition = () => {
             if (open && buttonRef.current) {
                 const rect = buttonRef.current.getBoundingClientRect();
+                const margin = 8;
                 setDropdownPos({
                     top: rect.bottom + 6,
-                    left: rect.left
+                    left: Math.max(margin, Math.min(rect.left, window.innerWidth - DROPDOWN_WIDTH - margin)),
                 });
             }
         };
@@ -102,7 +105,8 @@ const CountrieCodeBtn = ({ value, onChange, autoDetected, onManualChange, classN
                     top: `${dropdownPos.top}px`,
                     left: `${dropdownPos.left}px`,
                     zIndex: 9999,
-                    width: '288px'
+                    width: `${DROPDOWN_WIDTH}px`,
+                    maxWidth: 'calc(100vw - 16px)'
                 }} className="bg-white border border-stone-200 rounded-lg shadow-xl overflow-hidden">
                     <div className="flex items-center gap-2 px-3 py-2.5 border-b border-stone-100 bg-stone-50">
                         <Search size={14} className="text-stone-400 shrink-0" aria-hidden="true" />

@@ -1,0 +1,15 @@
+# Robots.txt for Jakhu Fitness
+# Restrict web crawlers, search engines, and scrapers from indexing administrative and API endpoints.
+
+User-agent: *
+Disallow: /admin
+Disallow: /admin/
+Disallow: /admin/*
+Disallow: /api/
+Disallow: /api/*
+
+# Allow public pages
+Allow: /
+Allow: /about
+Allow: /contact
+Allow: /products

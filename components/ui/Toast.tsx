@@ -1,36 +1,63 @@
 "use client";
 import { motion, AnimatePresence } from "motion/react";
-import { CheckCircle2, AlertCircle, Info, X } from "lucide-react";
+import { CheckCircle2, AlertCircle, AlertTriangle, Info, X, type LucideIcon } from "lucide-react";
 import React, { createContext, useContext, useState, useCallback, useEffect } from "react";
 
-export type ToastType = "success" | "error" | "info";
+export type ToastType = "success" | "error" | "warning" | "info";
+
+export interface ToastAction {
+  label: string;
+  onClick: () => void;
+}
 
 export interface ToastItem {
   id: string;
   message: string;
-  type?: ToastType;
+  type: ToastType;
+  duration: number;
+  action?: ToastAction;
+}
+
+export interface ToastOptions {
   duration?: number;
+  action?: ToastAction;
 }
 
 interface ToastContextType {
-  toast: (message: string, type?: ToastType, duration?: number) => void;
-  success: (message: string, duration?: number) => void;
-  error: (message: string, duration?: number) => void;
-  info: (message: string, duration?: number) => void;
+  toast: (message: string, type?: ToastType, options?: number | ToastOptions) => void;
+  success: (message: string, options?: number | ToastOptions) => void;
+  error: (message: string, options?: number | ToastOptions) => void;
+  warning: (message: string, options?: number | ToastOptions) => void;
+  info: (message: string, options?: number | ToastOptions) => void;
+}
+
+const DEFAULT_DURATION: Record<ToastType, number> = {
+  success: 3000,
+  error: 3500,
+  warning: 3500,
+  info: 3000,
+};
+
+function normalizeOptions(options?: number | ToastOptions): ToastOptions {
+  return typeof options === "number" ? { duration: options } : options ?? {};
+}
+
+function makeToast(message: string, type: ToastType, options?: number | ToastOptions): ToastItem {
+  const { duration, action } = normalizeOptions(options);
+  return { id: Math.random().toString(36).substring(2, 9), message, type, duration: duration ?? DEFAULT_DURATION[type], action };
 }
 
 const ToastContext = createContext<ToastContextType | undefined>(undefined);
 let globalToastHandler: ((item: ToastItem) => void) | null = null;
 
 export const toast = {
-  show: (message: string, type: ToastType = "info", duration = 3000) => {
-    if (globalToastHandler) {
-      globalToastHandler({ id: Math.random().toString(36).substring(2, 9), message, type, duration });
-    }
+  show: (message: string, type: ToastType = "info", options?: number | ToastOptions) => {
+    if (globalToastHandler) globalToastHandler(makeToast(message, type, options));
   },
-  success: (message: string, duration = 3000) => toast.show(message, "success", duration),
-  error: (message: string, duration = 3500) => toast.show(message, "error", duration),
-  info: (message: string, duration = 3000) => toast.show(message, "info", duration),
+  success: (message: string, options?: number | ToastOptions) => toast.show(message, "success", options),
+  error: (message: string, options?: number | ToastOptions) => toast.show(message, "error", options),
+  warning: (message: string, options?: number | ToastOptions) => toast.show(message, "warning", options),
+  info: (message: string, options?: number | ToastOptions) => toast.show(message, "info", options),
 };
 
 export function ToastProvider({ children }: { children: React.ReactNode }) {
@@ -43,10 +70,11 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
   }, [addToast]);
 
   const api: ToastContextType = {
-    toast: (message, type = "info", duration = 3000) => addToast({ id: Math.random().toString(36).substring(2, 9), message, type, duration }),
-    success: (message, duration = 3000) => addToast({ id: Math.random().toString(36).substring(2, 9), message, type: "success", duration }),
-    error: (message, duration = 3500) => addToast({ id: Math.random().toString(36).substring(2, 9), message, type: "error", duration }),
-    info: (message, duration = 3000) => addToast({ id: Math.random().toString(36).substring(2, 9), message, type: "info", duration }),
+    toast: (message, type = "info", options) => addToast(makeToast(message, type, options)),
+    success: (message, options) => addToast(makeToast(message, "success", options)),
+    error: (message, options) => addToast(makeToast(message, "error", options)),
+    warning: (message, options) => addToast(makeToast(message, "warning", options)),
+    info: (message, options) => addToast(makeToast(message, "info", options)),
   };
 
   return (
@@ -63,36 +91,68 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
   );
 }
 
+// The toast system is shared by two independent theme mechanisms: the public
+// storefront (data-theme="dark"|"light" on <html>, from ThemeContext) and the
+// admin panel (a plain `dark` class on <html>, from PreferencesProvider). A
+// toast reads whichever signal is present once at mount — its lifetime is a
+// few seconds, so it doesn't need to track live theme changes.
+function resolveIsDark(): boolean {
+  if (typeof document === "undefined") return false;
+  const root = document.documentElement;
+  if (root.classList.contains("dark")) return true;
+  const dataTheme = root.getAttribute("data-theme");
+  if (dataTheme === "dark") return true;
+  return false;
+}
+
+const TYPE_CONFIG: Record<ToastType, { icon: LucideIcon; iconLight: string; iconDark: string; chipLight: string; chipDark: string; borderLight: string; borderDark: string }> = {
+  success: { icon: CheckCircle2, iconLight: "text-emerald-600", iconDark: "text-emerald-400", chipLight: "bg-emerald-500/12", chipDark: "bg-emerald-400/15", borderLight: "border-emerald-500/25", borderDark: "border-emerald-400/25" },
+  error: { icon: AlertCircle, iconLight: "text-red-600", iconDark: "text-red-400", chipLight: "bg-red-500/12", chipDark: "bg-red-400/15", borderLight: "border-red-500/25", borderDark: "border-red-400/25" },
+  warning: { icon: AlertTriangle, iconLight: "text-amber-600", iconDark: "text-amber-400", chipLight: "bg-amber-500/12", chipDark: "bg-amber-400/15", borderLight: "border-amber-500/25", borderDark: "border-amber-400/25" },
+  info: { icon: Info, iconLight: "text-blue-600", iconDark: "text-blue-400", chipLight: "bg-blue-500/12", chipDark: "bg-blue-400/15", borderLight: "border-blue-500/20", borderDark: "border-blue-400/20" },
+};
+
 function ToastCard({ toast, onClose }: { toast: ToastItem; onClose: () => void }) {
-  const { message, type = "info", duration = 3000 } = toast;
+  const { message, type, duration, action } = toast;
+  const [isDark] = useState(resolveIsDark);
+
   useEffect(() => {
     const timer = setTimeout(() => { onClose() }, duration);
     return () => clearTimeout(timer);
   }, [duration, onClose]);
 
-  const isError = type === "error";
-  const isSuccess = type === "success";
+  const { icon: Icon, iconLight, iconDark, chipLight, chipDark, borderLight, borderDark } = TYPE_CONFIG[type];
 
   return (
     <motion.div layout
-      initial={{ opacity: 0, y: 20, scale: 0.95 }}
-      animate={isError ? { opacity: 1, y: 0, scale: 1, x: [-5, 5, -5, 5, 0] } : { opacity: 1, y: 0, scale: 1 }}
-      exit={{ opacity: 0, y: 10, scale: 0.95 }}
-      transition={{ duration: 0.3, ease: "easeOut" }}
-      className={`pointer-events-auto flex items-center justify-between gap-4 rounded-2xl backdrop-blur-md px-5 py-3 shadow-2xl border text-sm font-semibold tracking-tight ${
-        isError ? "bg-red-500 text-white border-red-600 shadow-red-500/20" :
-        isSuccess ? "bg-emerald-500 text-white border-emerald-600 shadow-emerald-500/20" :
-        "bg-theme-surface text-theme-text border-theme-border"
+      initial={{ opacity: 0, y: 12, scale: 0.96 }}
+      animate={type === "error" ? { opacity: 1, y: 0, scale: 1, x: [-3, 3, -3, 2, 0] } : { opacity: 1, y: 0, scale: 1 }}
+      exit={{ opacity: 0, y: 8, scale: 0.96, transition: { duration: 0.15 } }}
+      transition={{ duration: 0.25, ease: "easeOut" }}
+      className={`pointer-events-auto flex items-center gap-2.5 rounded-xl border px-3 py-2.5 text-sm shadow-lg backdrop-blur-xl ${
+        isDark
+          ? `bg-[#1f1f23]/95 text-[#f4f4f5] shadow-black/30 ${borderDark}`
+          : `bg-white/95 text-stone-900 shadow-stone-900/6 ${borderLight}`
       }`}
     >
-      <div className="flex items-center gap-3 min-w-0">
-        {isSuccess && <CheckCircle2 size={18} className="text-white shrink-0" />}
-        {isError && <AlertCircle size={18} className="text-white shrink-0" />}
-        {type === "info" && <Info size={18} className="text-gold shrink-0" />}
-        <span className="truncate leading-snug">{message}</span>
+      <div className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full ${isDark ? chipDark : chipLight}`}>
+        <Icon size={13} className={isDark ? iconDark : iconLight} strokeWidth={2.25} />
       </div>
-      <button onClick={onClose} className={`ml-1 transition-colors rounded-full p-1 ${isError || isSuccess ? "hover:bg-white/20 text-white/80 hover:text-white" : "hover:bg-theme-border text-theme-muted hover:text-theme-text"}`} aria-label="Dismiss toast">
-        <X size={15} />
+      <span className="min-w-0 flex-1 truncate font-medium leading-snug">{message}</span>
+      {action && (
+        <button
+          onClick={() => { action.onClick(); onClose(); }}
+          className={`shrink-0 text-xs font-semibold hover:underline ${isDark ? iconDark : iconLight}`}
+        >
+          {action.label}
+        </button>
+      )}
+      <button
+        onClick={onClose}
+        aria-label="Dismiss toast"
+        className={`shrink-0 rounded-full p-1 transition-colors ${isDark ? "text-[#8a8a91] hover:bg-white/10 hover:text-[#f4f4f5]" : "text-stone-400 hover:bg-stone-100 hover:text-stone-700"}`}
+      >
+        <X size={13} />
       </button>
     </motion.div>
   );
@@ -105,6 +165,7 @@ export function useToast() {
       toast: toast.show,
       success: toast.success,
       error: toast.error,
+      warning: toast.warning,
       info: toast.info,
     };
   }

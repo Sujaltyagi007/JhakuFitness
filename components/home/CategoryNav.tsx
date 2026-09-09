@@ -34,17 +34,12 @@ export default function CategoryNav({ categories }: CategoryNavProps) {
 
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
           {categories.map((c, i) => (
-            <motion.div
-              key={c.id}
+            <motion.div key={c.id}
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-60px" }}
-              transition={{ duration: 0.5, delay: i * 0.08 }}
-            >
-              <Link
-                href="/products"
-                className="group relative flex h-full flex-col justify-between rounded-2xl border border-theme-border bg-theme-bg p-6 backdrop-blur-md transition-all duration-300 hover:-translate-y-1 hover:border-gold/50 hover:bg-theme-surface-hover hover:shadow-xl hover:shadow-gold/10"
-              >
+              transition={{ duration: 0.5, delay: i * 0.08 }} >
+              <Link href="/products" className="group relative flex h-full flex-col justify-between rounded-2xl border border-theme-border bg-theme-bg p-6 backdrop-blur-md transition-all duration-300 hover:-translate-y-1 hover:border-gold/50 hover:bg-theme-surface-hover hover:shadow-xl hover:shadow-gold/10">
                 <div className="flex items-center justify-between">
                   <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gold/10 text-gold border border-gold/20 transition-transform group-hover:scale-110">
                     <CategoryIcon category={c.id} className="h-6 w-6" />

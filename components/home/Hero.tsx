@@ -135,29 +135,16 @@ export default function Hero({ headline, subtext, locationBadge }: HeroProps) {
             "linear-gradient(100deg, rgba(11,11,13,0.92) 0%, rgba(11,11,13,0.72) 38%, rgba(11,11,13,0.12) 65%, transparent 100%)",
         }}
       />
-      {/* bottom fade */}
-      <div
-        className="pointer-events-none absolute bottom-0 left-0 right-0 z-10 h-16 sm:h-20"
-        style={{
-          background:
-            "linear-gradient(to top, rgba(11,11,13,0.85) 0%, transparent 100%)",
-        }}
-      />
-      {/* subtle top vignette */}
-      <div className="pointer-events-none absolute left-0 right-0 top-0 z-10 h-24 sm:h-32"
-        style={{
-          background: "linear-gradient(to bottom, rgba(11,11,13,0.55) 0%, transparent 100%)",
-        }}
-      />
+      <div className="pointer-events-none absolute bottom-0 left-0 right-0 z-10 h-16 sm:h-20" style={{
+        background: "linear-gradient(to top, rgba(11,11,13,0.85) 0%, transparent 100%)"
+      }} />
+      <div className="pointer-events-none absolute left-0 right-0 top-0 z-10 h-24 sm:h-32" style={{
+        background: "linear-gradient(to bottom, rgba(11,11,13,0.55) 0%, transparent 100%)",
+      }} />
 
       <div className="relative z-20 flex min-h-dvh flex-1 flex-col justify-end sm:justify-baseline sm:items-baseline px-5 pt-20 pb-6 sm:px-8 sm:py-18 lg:px-16 xl:px-24">
         <div className="max-w-xl ">
-          <motion.div
-            initial={{ opacity: 0, x: -16 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.6, delay: 0.05, ease: easeOut }}
-            className="mb-2 sm:mb-4 inline-flex w-fit items-center gap-2 rounded-full border border-white/12 bg-white/6 px-3 py-1 sm:px-4 sm:py-1.5 text-[11px] sm:text-xs font-medium text-white/65 backdrop-blur-sm"
-          >
+          <motion.div initial={{ opacity: 0, x: -16 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.6, delay: 0.05, ease: easeOut }} className="mb-2 sm:mb-4 inline-flex w-fit items-center gap-2 rounded-full border border-white/12 bg-white/6 px-3 py-1 sm:px-4 sm:py-1.5 text-[11px] sm:text-xs font-medium text-white/65 backdrop-blur-sm"          >
             <span className="relative flex h-2 w-2">
               <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-gold opacity-75" />
               <span className="relative inline-flex h-2 w-2 rounded-full bg-gold" />
@@ -166,47 +153,24 @@ export default function Hero({ headline, subtext, locationBadge }: HeroProps) {
             {locationBadge}
           </motion.div>
 
-          {/* headline */}
           <h1 className="font-display text-[1.75rem] leading-[1.12] font-semibold tracking-tight text-white sm:text-3xl md:text-[2.25rem] lg:text-[2.5rem] xl:text-[2.75rem] sm:leading-[1.12]">
             {headlineLines.map((word, i) => (
               <span key={word} className="block overflow-hidden">
-                <motion.span
-                  custom={i}
-                  variants={lineVariant}
-                  initial="hidden"
-                  animate="show"
-                  className="inline-block"
-                >
-                  {word}
-                </motion.span>
+                <motion.span custom={i} variants={lineVariant} initial="hidden" animate="show" className="inline-block">{word}</motion.span>
               </span>
             ))}
           </h1>
 
-          {/* gold accent line */}
-          <motion.div
-            initial={{ scaleX: 0, opacity: 0 }}
+          <motion.div initial={{ scaleX: 0, opacity: 0 }}
             animate={{ scaleX: 1, opacity: 1 }}
             transition={{ duration: 0.8, delay: 0.65, ease: easeOut }}
-            style={{ originX: 0 }}
-            className="mt-2.5 sm:mt-4 h-0.75 w-14 sm:w-16 rounded-full bg-linear-to-r from-gold to-gold-bright"
-          />
-
-          {/* sub-headline */}
-          <motion.p
-            custom={0.9}
-            variants={fadeUp}
-            initial="hidden"
-            animate="show"
-            className="mt-2.5 sm:mt-5 max-w-sm sm:max-w-md text-xs leading-relaxed text-white/60 sm:text-sm md:text-[0.75rem]"
-          >
+            style={{ originX: 0 }} className="mt-2.5 sm:mt-4 h-0.75 w-14 sm:w-16 rounded-full bg-linear-to-r from-gold to-gold-bright" />
+          <motion.p custom={0.9} variants={fadeUp}
+            initial="hidden" animate="show"
+            className="mt-2.5 sm:mt-5 max-w-sm sm:max-w-md text-xs leading-relaxed text-white/60 sm:text-sm md:text-[0.75rem]"          >
             {subtext}
           </motion.p>
-
-          {/* CTA buttons */}
-          <motion.div
-            custom={1.1}
-            variants={fadeUp}
+          <motion.div custom={1.1} variants={fadeUp}
             initial="hidden"
             animate="show"
             className="mt-4 sm:mt-6 flex flex-row items-center gap-2.5 sm:gap-4 max-w-sm sm:max-w-none"
@@ -226,8 +190,6 @@ export default function Hero({ headline, subtext, locationBadge }: HeroProps) {
               Get a quote
             </Button>
           </motion.div>
-
-          {/* ── live stats bar: single horizontal 3-column row on mobile ── */}
           <div className="mt-3.5 sm:mt-6 grid grid-cols-3 gap-2 sm:flex sm:flex-wrap sm:gap-3 max-w-md sm:max-w-none">
             <StatTicker label="Speed" value={12} unit=" km/h" icon={Activity} delay={1.4} />
             <StatTicker label="Incline" value={8} unit="%" icon={Zap} delay={1.6} />
@@ -235,13 +197,8 @@ export default function Hero({ headline, subtext, locationBadge }: HeroProps) {
           </div>
         </div>
       </div>
-
-      {/* ── scroll cue (hidden on mobile to prevent clutter) ── */}
       <ScrollIndicator />
-
-      {/* ── Gold accent glow on the right edge ── */}
-      <div
-        className="pointer-events-none absolute right-0 top-1/3 z-10 h-96 w-2 blur-xl"
+      <div className="pointer-events-none absolute right-0 top-1/3 z-10 h-96 w-2 blur-xl"
         style={{ background: "linear-gradient(to bottom, transparent, #c9a54e44, transparent)" }}
       />
     </section>

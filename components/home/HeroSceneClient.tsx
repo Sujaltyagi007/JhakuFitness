@@ -1,5 +1,4 @@
 "use client";
-
 import dynamic from "next/dynamic";
 
 const HeroScene = dynamic(() => import("@/components/three/HeroScene"), {
@@ -17,10 +16,6 @@ const HeroScene = dynamic(() => import("@/components/three/HeroScene"), {
 
 export default function HeroSceneClient({ fullscreen = false }: { fullscreen?: boolean }) {
   return (
-    <HeroScene
-      kind="treadmill"
-      colorway={{ body: "#1b1b1d", accent: "#c9a54e" }}
-      fullscreen={fullscreen}
-    />
+    <HeroScene kind="treadmill" colorway={{ body: "#1b1b1d", accent: "#c9a54e" }} fullscreen={fullscreen} />
   );
 }

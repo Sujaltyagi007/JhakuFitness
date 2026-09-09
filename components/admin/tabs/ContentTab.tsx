@@ -3,7 +3,8 @@ import { motion } from "motion/react";
 import { Input } from "@/components/ui/input";
 import { toast } from "@/components/ui/Toast";
 import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
+import { TabButtonSkeleton, ContentHeaderSkeleton, FormFieldSkeleton } from "@/components/ui/Skeletons";
+import { getContent, upsertSiteSetting, upsertContentBlock } from "@/lib/api";
 import CountrieCodeBtn from "@/components/ui/CountrieCodeBtn";
 import { COUNTRIES, type Country } from "@/lib/hooks/Countrielist";
 import { AlertTriangle, Loader2, RefreshCw, Save } from "lucide-react";
@@ -134,9 +135,7 @@ export default function ContentTab() {
     setLoading(true);
     setLoadError(null);
     try {
-      const res = await fetch("/api/admin/content");
-      if (!res.ok) throw new Error(`Failed to load content (${res.status})`);
-      const data = await res.json();
+      const data = await getContent();
       const settingsMap: Record<string, string> = {};
       for (const s of data.settings as SiteSetting[]) settingsMap[s.key] = s.value;
       const blockList = data.blocks as ContentBlock[];
@@ -166,41 +165,25 @@ export default function ContentTab() {
   const saveAll = async () => {
     setIsSavingAll(true);
     try {
-      const promises: Promise<Response>[] = [];
+      const promises: Promise<unknown>[] = [];
+      let successCount = 0;
+      let failCount = 0;
 
       for (const [key, value] of Object.entries(settings)) {
         if (value !== confirmedSettings.current[key]) {
           promises.push(
-            fetch("/api/admin/content", {
-              method: "PATCH",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ type: "setting", key, value }),
-            }).then(res => {
-              if (res.ok) confirmedSettings.current[key] = value;
-              return res;
-            })
+            upsertSiteSetting(key, value as string)
+              .then(() => { confirmedSettings.current[key] = value; successCount++; })
+              .catch(() => { failCount++; })
           );
         }
       }
 
       for (const block of blocks) {
         const confirmed = confirmedBlocks.current[block.slug];
-        if (
-          !confirmed ||
-          block.title !== confirmed.title ||
-          block.bodyText !== confirmed.bodyText ||
-          block.mediaUrl !== confirmed.mediaUrl ||
-          JSON.stringify(block.metadata) !== JSON.stringify(confirmed.metadata)
-        ) {
+        if (!confirmed || block.title !== confirmed.title || block.bodyText !== confirmed.bodyText || block.mediaUrl !== confirmed.mediaUrl || JSON.stringify(block.metadata) !== JSON.stringify(confirmed.metadata)) {
           promises.push(
-            fetch("/api/admin/content", {
-              method: "PATCH",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ type: "block", slug: block.slug, title: block.title, bodyText: block.bodyText, mediaUrl: block.mediaUrl, metadata: block.metadata }),
-            }).then(res => {
-              if (res.ok) confirmedBlocks.current[block.slug] = block;
-              return res;
-            })
+            upsertContentBlock({ slug: block.slug, title: block.title ?? undefined, bodyText: block.bodyText ?? undefined, mediaUrl: block.mediaUrl ?? undefined, metadata: block.metadata ?? undefined }).then(() => { confirmedBlocks.current[block.slug] = block; successCount++; }).catch(() => { failCount++; })
           );
         }
       }
@@ -210,15 +193,9 @@ export default function ContentTab() {
         setIsSavingAll(false);
         return;
       }
-
-      const results = await Promise.all(promises);
-      const failed = results.filter(r => !r.ok);
-
-      if (failed.length > 0) {
-        toast.error(`Failed to save ${failed.length} item(s)`);
-      } else {
-        toast.success("All changes saved successfully");
-      }
+      await Promise.all(promises);
+      if (failCount > 0) toast.error(`Failed to save ${failCount} item(s)`);
+      else toast.success("All changes saved successfully");
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Save failed");
     } finally {
@@ -254,26 +231,19 @@ export default function ContentTab() {
     return (
       <div className="flex flex-col gap-4">
         <div className="flex gap-2">
-          <Skeleton className="h-10 w-24" />
-          <Skeleton className="h-10 w-32" />
-          <Skeleton className="h-10 w-28" />
-          <Skeleton className="h-10 w-32" />
+          <TabButtonSkeleton widthClass="w-24" />
+          <TabButtonSkeleton widthClass="w-32" />
+          <TabButtonSkeleton widthClass="w-28" />
+          <TabButtonSkeleton widthClass="w-32" />
         </div>
         <div className="flex-1 space-y-8 mt-2">
           <Card>
             <CardHeader>
-              <Skeleton className="h-6 w-48 mb-2" />
-              <Skeleton className="h-4 w-64" />
+              <ContentHeaderSkeleton />
             </CardHeader>
             <CardContent className="space-y-4">
-              <div>
-                <Skeleton className="h-4 w-32 mb-2" />
-                <Skeleton className="h-24 w-full" />
-              </div>
-              <div>
-                <Skeleton className="h-4 w-32 mb-2" />
-                <Skeleton className="h-24 w-full" />
-              </div>
+              <FormFieldSkeleton />
+              <FormFieldSkeleton />
             </CardContent>
           </Card>
         </div>
@@ -382,7 +352,7 @@ export default function ContentTab() {
               <CardDescription>Global contact details used in the header, footer, and contact page.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="flex justify-center items-center gap-4 w-full " >
+              <div className="flex flex-col sm:flex-row justify-center items-stretch sm:items-center gap-4 w-full " >
                 <PhoneSettingField label="Phone Number" className="w-full" settingKey="site.phone" value={settings["site.phone"] ?? ""} onChange={handleSettingChange} />
                 <SettingField label="Email Address" className="w-full" settingKey="site.email" value={settings["site.email"] ?? ""} onChange={handleSettingChange} />
               </div>

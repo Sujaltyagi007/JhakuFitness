@@ -3,15 +3,14 @@
 import { ReactNode } from "react";
 import { Loader2 } from "lucide-react";
 import AdminLogin from "./AdminLogin";
-import { useAdminAuth } from "@/lib/useAdminAuth";
+import { useAdminAuth, type AdminUser } from "@/lib/useAdminAuth";
 
 interface AdminAuthGateProps {
-  children: (logout: () => void) => ReactNode;
+  children: (logout: () => void, user: AdminUser | null) => ReactNode;
 }
 
-/** Gatekeeps admin routes behind the session cookie check, shared by every /admin/* page. */
 export default function AdminAuthGate({ children }: AdminAuthGateProps) {
-  const { isAuthenticated, markAuthenticated, logout } = useAdminAuth();
+  const { isAuthenticated, user, markAuthenticated, logout } = useAdminAuth();
 
   if (isAuthenticated === null) {
     return (
@@ -34,5 +33,5 @@ export default function AdminAuthGate({ children }: AdminAuthGateProps) {
     );
   }
 
-  return <>{children(logout)}</>;
+  return <>{children(logout, user)}</>;
 }

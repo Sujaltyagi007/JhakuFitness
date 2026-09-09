@@ -25,11 +25,15 @@
     "lucide-react": "^1.41.0",
     "motion": "^13.2.0",
     "next": "16.3.4",
+    "next-auth": "^4.24.15",
     "pg": "^8.23.0",
+    "pusher": "^5.3.4",
+    "pusher-js": "^8.6.0",
     "react": "19.2.8",
     "react-dom": "19.2.8",
     "tailwind-merge": "^2.6.1",
-    "three": "^0.185.1"
+    "three": "^0.185.1",
+    "zod": "^4.5.4"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",

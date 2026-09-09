@@ -112,22 +112,22 @@ export default function InteractiveStudioShowcase() {
             </div>
 
             {/* Interactive Hotspots */}
-            <AnimatePresence mode="wait">
-              {currentTab.hotspots.map((spot) => (
-                <div
-                  key={spot.id}
-                  style={{ left: `${spot.x}%`, top: `${spot.y}%` }}
-                  className="absolute z-20 -translate-x-1/2 -translate-y-1/2"
+            {currentTab.hotspots.map((spot) => (
+              <div
+                key={spot.id}
+                style={{ left: `${spot.x}%`, top: `${spot.y}%` }}
+                className="absolute z-20 -translate-x-1/2 -translate-y-1/2"
+              >
+                <button
+                  onClick={() => setActiveHotspot(activeHotspot?.id === spot.id ? null : spot)}
+                  className="relative flex h-8 w-8 items-center justify-center rounded-full bg-gold/90 text-ink shadow-lg shadow-gold/40 transition-transform hover:scale-125"
                 >
-                  <button
-                    onClick={() => setActiveHotspot(activeHotspot?.id === spot.id ? null : spot)}
-                    className="relative flex h-8 w-8 items-center justify-center rounded-full bg-gold/90 text-ink shadow-lg shadow-gold/40 transition-transform hover:scale-125"
-                  >
-                    <span className="absolute inset-0 animate-ping rounded-full bg-gold opacity-60" />
-                    <Activity size={15} className="relative z-10" />
-                  </button>
+                  <span className="absolute inset-0 animate-ping rounded-full bg-gold opacity-60" />
+                  <Activity size={15} className="relative z-10" />
+                </button>
 
-                  {/* Hotspot Tooltip */}
+                {/* Hotspot Tooltip */}
+                <AnimatePresence>
                   {activeHotspot?.id === spot.id && (
                     <motion.div
                       initial={{ opacity: 0, y: 10, scale: 0.95 }}
@@ -139,9 +139,9 @@ export default function InteractiveStudioShowcase() {
                       <p className="mt-1 text-xs text-theme-surface-muted leading-relaxed">{spot.detail}</p>
                     </motion.div>
                   )}
-                </div>
-              ))}
-            </AnimatePresence>
+                </AnimatePresence>
+              </div>
+            ))}
           </div>
 
           {/* Side Info Panel */}

@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 import { Phone, Mail, Clock, CheckCircle2, MessageSquare, Filter } from "lucide-react";
 
 interface Lead {
@@ -88,17 +89,16 @@ export default function LeadsTab() {
 
           <div className="flex items-center gap-2">
             <Filter size={14} className="text-steel" />
-            <select
-              value={filter}
-              onChange={(e) => setFilter(e.target.value)}
-              className="rounded-lg border border-ink/15 bg-white px-2.5 py-1.5 text-xs text-ink outline-none"
-            >
-              <option value="all">All Inquiries ({leads.length})</option>
-              <option value="new">New</option>
-              <option value="contacted">Contacted</option>
-              <option value="quoted">Quoted</option>
-              <option value="closed">Closed</option>
-            </select>
+            <Select value={filter} onValueChange={setFilter} className="w-auto">
+              <SelectTrigger className="h-8 w-auto gap-1.5 px-2.5 py-1.5 text-xs"><SelectValue /></SelectTrigger>
+              <SelectContent className="min-w-45">
+                <SelectItem value="all">All Inquiries ({leads.length})</SelectItem>
+                <SelectItem value="new">New</SelectItem>
+                <SelectItem value="contacted">Contacted</SelectItem>
+                <SelectItem value="quoted">Quoted</SelectItem>
+                <SelectItem value="closed">Closed</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
         </CardHeader>
 
@@ -144,16 +144,15 @@ export default function LeadsTab() {
 
                 {/* Status action buttons */}
                 <div className="flex items-center gap-2 self-end sm:self-center">
-                  <select
-                    value={lead.status}
-                    onChange={(e) => updateLeadStatus(lead.id, e.target.value as Lead["status"])}
-                    className="rounded-md border border-ink/15 bg-white px-2 py-1 text-xs text-ink outline-none"
-                  >
-                    <option value="new">Mark New</option>
-                    <option value="contacted">Mark Contacted</option>
-                    <option value="quoted">Mark Quoted</option>
-                    <option value="closed">Mark Closed</option>
-                  </select>
+                  <Select value={lead.status} onValueChange={(v) => updateLeadStatus(lead.id, v as Lead["status"])} className="w-auto" align="end">
+                    <SelectTrigger className="h-8 w-auto gap-1.5 px-2 py-1 text-xs"><SelectValue /></SelectTrigger>
+                    <SelectContent className="min-w-40">
+                      <SelectItem value="new">Mark New</SelectItem>
+                      <SelectItem value="contacted">Mark Contacted</SelectItem>
+                      <SelectItem value="quoted">Mark Quoted</SelectItem>
+                      <SelectItem value="closed">Mark Closed</SelectItem>
+                    </SelectContent>
+                  </Select>
 
                   <a
                     href={`https://wa.me/${lead.phone.replace(/[^0-9]/g, "")}`}

@@ -63,7 +63,7 @@ export default function ProductCard({ product }: { product: CardProduct }) {
           )}
         </div>
 
-        <div className="p-5">
+        <div className="flex min-h-44 flex-col p-5">
           <div className="flex items-start justify-between gap-3">
             <div>
               <h3 className="font-display text-base font-bold text-black group-hover:text-gold transition-colors">{product.name}</h3>
@@ -71,7 +71,7 @@ export default function ProductCard({ product }: { product: CardProduct }) {
             </div>
             <ArrowUpRight size={18} className="mt-1 shrink-0 text-black transition-colors group-hover:text-gold" />
           </div>
-          <div className="mt-4 flex items-center justify-between border-t border-theme-border pt-3 text-xs text-black">
+          <div className="mt-auto flex items-center justify-between border-t border-theme-border pt-3 text-xs text-black">
             <span className="truncate pr-2">{product.specialFeature}</span>
             <span className="font-semibold text-gold shrink-0">View details</span>
           </div>

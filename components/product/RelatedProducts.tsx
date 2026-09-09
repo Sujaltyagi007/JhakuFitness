@@ -1,6 +1,6 @@
 import { Product } from "@/lib/types";
-import ProductCard, { type CardProduct } from "@/components/products/ProductCard";
 import { SectionHeading } from "@/components/ui/Primitives";
+import ProductCard, { type CardProduct } from "@/components/products/ProductCard";
 
 export default function RelatedProducts({ products }: { products: (Product | CardProduct)[] }) {
   if (products.length === 0) return null;
@@ -8,9 +8,7 @@ export default function RelatedProducts({ products }: { products: (Product | Car
     <section className="mt-20">
       <SectionHeading title="You might also fit" />
       <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-        {products.map((p) => (
-          <ProductCard key={p.id} product={p} />
-        ))}
+        {products.map((p) => (<ProductCard key={p.id} product={p} />))}
       </div>
     </section>
   );

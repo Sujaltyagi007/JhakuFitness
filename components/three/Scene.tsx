@@ -2,7 +2,7 @@
 
 import { Canvas } from "@react-three/fiber";
 import { OrbitControls, MeshReflectorMaterial, ContactShadows } from "@react-three/drei";
-import { Suspense, ReactNode, Ref, ComponentRef } from "react";
+import { Suspense, ReactNode, Ref, ComponentRef, Fragment } from "react";
 import { useIsCompact } from "@/lib/useIsCompact";
 
 interface SceneProps {
@@ -21,30 +21,14 @@ interface SceneProps {
 
 function Lights() {
   return (
-    <>
+    <Fragment>
       <ambientLight intensity={0.45} />
-      <directionalLight
-        position={[4, 7, 4]}
-        intensity={1.6}
-        color="#ffffff"
-        castShadow
-      />
-      {/* warm gold fill from side */}
-      <directionalLight
-        position={[-4, 3, -2]}
-        intensity={1.1}
-        color="#c9a54e"
-      />
-      {/* cool blue rim from behind */}
-      <directionalLight
-        position={[0, 2, -5]}
-        intensity={0.55}
-        color="#5599ff"
-      />
+      <directionalLight position={[4, 7, 4]} intensity={1.6} color="#ffffff" castShadow/>
+      <directionalLight position={[-4, 3, -2]} intensity={1.1} color="#c9a54e"/>
+      <directionalLight position={[0, 2, -5]} intensity={0.55} color="#5599ff"/>
       <pointLight position={[0, 4, -4]} intensity={0.6} color="#e7c579" />
-      {/* ground bounce */}
       <pointLight position={[0, -1, 0]} intensity={0.25} color="#c9a54e" />
-    </>
+    </Fragment>
   );
 }
 

@@ -1,5 +1,4 @@
 "use client";
-
 import { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { Container } from "@/components/ui/Primitives";
@@ -45,14 +44,8 @@ export default function InteractiveFaq() {
             {FAQS.map((faq, idx) => {
               const isOpen = openIdx === idx;
               return (
-                <div
-                  key={idx}
-                  className="rounded-2xl border border-theme-border bg-theme-bg backdrop-blur-md overflow-hidden transition-colors hover:border-gold/40"
-                >
-                  <button
-                    onClick={() => setOpenIdx(isOpen ? null : idx)}
-                    className="flex w-full items-center justify-between p-6 text-left"
-                  >
+                <div key={idx} className="rounded-2xl border border-theme-border bg-theme-bg backdrop-blur-md overflow-hidden transition-colors hover:border-gold/40" >
+                  <button onClick={() => setOpenIdx(isOpen ? null : idx)} className="flex w-full items-center justify-between p-6 text-left">
                     <span className="font-display text-base font-semibold text-theme-surface-text pr-4">
                       {faq.q}
                     </span>
@@ -63,12 +56,7 @@ export default function InteractiveFaq() {
 
                   <AnimatePresence>
                     {isOpen && (
-                      <motion.div
-                        initial={{ height: 0, opacity: 0 }}
-                        animate={{ height: "auto", opacity: 1 }}
-                        exit={{ height: 0, opacity: 0 }}
-                        transition={{ duration: 0.3 }}
-                      >
+                      <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.3 }} >
                         <div className="px-6 pb-6 text-sm text-theme-surface-muted leading-relaxed border-t border-theme-border pt-4">
                           {faq.a}
                         </div>

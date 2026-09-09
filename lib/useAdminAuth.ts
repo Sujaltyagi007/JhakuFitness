@@ -1,26 +1,35 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useRef } from "react";
+import { useSession, signOut } from "next-auth/react";
+
+export interface AdminUser {
+  id: string;
+  name: string;
+  email: string;
+  role?: string;
+  isSuperUser?: boolean;
+  preferences?: Record<string, any> | null;
+}
 
 export function useAdminAuth() {
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
+  const { data: session, status } = useSession();
+  // useSession()'s status flips to "loading" not just on the initial page
+  // load but also during session.update() calls (e.g. PreferencesProvider
+  // syncing a saved preference) — once we've genuinely authenticated once,
+  // those transient blips shouldn't drop back to the "checking session"
+  // screen and unmount the whole dashboard.
+  const hasAuthenticatedRef = useRef(false);
+  if (status === "authenticated") hasAuthenticatedRef.current = true;
 
-  useEffect(() => {
-    fetch("/api/admin/auth")
-      .then((res) => res.json())
-      .then((data) => setIsAuthenticated(Boolean(data.authenticated)))
-      .catch(() => setIsAuthenticated(false));
-  }, []);
-
-  const markAuthenticated = useCallback(() => setIsAuthenticated(true), []);
+  const isAuthenticated = status === "loading" ? (hasAuthenticatedRef.current ? true : null) : status === "authenticated";
+  const user = session?.user as AdminUser | null;
+  const markAuthenticated = useCallback(() => { }, []);
 
   const logout = useCallback(async () => {
-    try {
-      await fetch("/api/admin/auth", { method: "DELETE" });
-    } finally {
-      setIsAuthenticated(false);
-    }
+    hasAuthenticatedRef.current = false;
+    await signOut({ redirect: false });
   }, []);
 
-  return { isAuthenticated, markAuthenticated, logout };
+  return { isAuthenticated, user, markAuthenticated, logout };
 }
