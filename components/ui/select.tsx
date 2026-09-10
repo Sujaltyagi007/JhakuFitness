@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { createPortal } from "react-dom";
 import { Check, ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -12,6 +13,8 @@ interface SelectContextValue {
   registerLabel: (itemValue: string, label: React.ReactNode) => void;
   labels: Record<string, React.ReactNode>;
   align: "start" | "end";
+  triggerRef: React.RefObject<HTMLButtonElement | null>;
+  contentRef: React.RefObject<HTMLDivElement | null>;
 }
 
 const SelectContext = React.createContext<SelectContextValue | null>(null);
@@ -36,6 +39,8 @@ export function Select({ value, onValueChange, children, className, disabled, al
   const [open, setOpenState] = React.useState(false);
   const [labels, setLabels] = React.useState<Record<string, React.ReactNode>>({});
   const rootRef = React.useRef<HTMLDivElement>(null);
+  const triggerRef = React.useRef<HTMLButtonElement>(null);
+  const contentRef = React.useRef<HTMLDivElement>(null);
   const setOpen = React.useCallback((next: boolean) => { if (!disabled) setOpenState(next); }, [disabled]);
 
   const registerLabel = React.useCallback((itemValue: string, label: React.ReactNode) => {
@@ -45,7 +50,10 @@ export function Select({ value, onValueChange, children, className, disabled, al
   React.useEffect(() => {
     if (!open) return;
     function handleClick(e: MouseEvent) {
-      if (rootRef.current && !rootRef.current.contains(e.target as Node)) setOpenState(false);
+      const target = e.target as Node;
+      const insideRoot = rootRef.current?.contains(target) ?? false;
+      const insideContent = contentRef.current?.contains(target) ?? false;
+      if (!insideRoot && !insideContent) setOpenState(false);
     }
     function handleKey(e: KeyboardEvent) {
       if (e.key === "Escape") setOpenState(false);
@@ -59,7 +67,7 @@ export function Select({ value, onValueChange, children, className, disabled, al
   }, [open]);
 
   return (
-    <SelectContext.Provider value={{ value, onValueChange, open, setOpen, registerLabel, labels, align }}>
+    <SelectContext.Provider value={{ value, onValueChange, open, setOpen, registerLabel, labels, align, triggerRef, contentRef }}>
       <div ref={rootRef} className={cn("relative", className)}>
         {children}
       </div>
@@ -71,10 +79,15 @@ export interface SelectTriggerProps extends React.ButtonHTMLAttributes<HTMLButto
 
 export const SelectTrigger = React.forwardRef<HTMLButtonElement, SelectTriggerProps>(
   ({ className, children, disabled, ...props }, ref) => {
-    const { open, setOpen } = useSelectContext("SelectTrigger");
+    const { open, setOpen, triggerRef } = useSelectContext("SelectTrigger");
+    const setRefs = React.useCallback((node: HTMLButtonElement | null) => {
+      triggerRef.current = node;
+      if (typeof ref === "function") ref(node);
+      else if (ref) ref.current = node;
+    }, [ref, triggerRef]);
     return (
       <button
-        ref={ref}
+        ref={setRefs}
         type="button"
         aria-haspopup="listbox"
         aria-expanded={open}
@@ -100,20 +113,75 @@ export function SelectValue({ placeholder, className }: { placeholder?: string; 
   return <span className={cn("truncate text-left", !label && "text-steel/70", className)}>{label ?? placeholder ?? value}</span>;
 }
 
+interface SelectContentPosition {
+  top?: number;
+  bottom?: number;
+  left: number;
+  width: number;
+  maxHeight: number;
+}
+
 export function SelectContent({ children, className }: { children: React.ReactNode; className?: string }) {
-  const { open, align } = useSelectContext("SelectContent");
-  return (
+  const { open, align, triggerRef, contentRef } = useSelectContext("SelectContent");
+  const [mounted, setMounted] = React.useState(false);
+  const [position, setPosition] = React.useState<SelectContentPosition | null>(null);
+
+  React.useEffect(() => setMounted(true), []);
+
+  React.useEffect(() => {
+    if (!open) return;
+    const GAP = 6;
+    const VIEWPORT_MARGIN = 16;
+    const MAX_LIST_HEIGHT = 256;
+
+    function recompute() {
+      const trigger = triggerRef.current;
+      if (!trigger) return;
+      const rect = trigger.getBoundingClientRect();
+      const spaceBelow = window.innerHeight - rect.bottom - GAP - VIEWPORT_MARGIN;
+      const spaceAbove = rect.top - GAP - VIEWPORT_MARGIN;
+      const flipped = spaceBelow < Math.min(MAX_LIST_HEIGHT, 160) && spaceAbove > spaceBelow;
+
+      setPosition({
+        ...(flipped
+          ? { bottom: window.innerHeight - rect.top + GAP }
+          : { top: rect.bottom + GAP }),
+        left: align === "end" ? rect.right - rect.width : rect.left,
+        width: rect.width,
+        maxHeight: Math.max(120, Math.min(MAX_LIST_HEIGHT, flipped ? spaceAbove : spaceBelow)),
+      });
+    }
+
+    recompute();
+    window.addEventListener("resize", recompute);
+    window.addEventListener("scroll", recompute, true);
+    return () => {
+      window.removeEventListener("resize", recompute);
+      window.removeEventListener("scroll", recompute, true);
+    };
+  }, [open, align, triggerRef]);
+
+  if (!mounted || !open || !position) return null;
+
+  return createPortal(
     <div
+      ref={contentRef}
       role="listbox"
+      style={{
+        top: position.top,
+        bottom: position.bottom,
+        left: position.left,
+        width: position.width,
+        maxHeight: position.maxHeight,
+      }}
       className={cn(
-        "absolute z-50 mt-1.5 max-h-64 w-full max-w-[calc(100vw-2rem)] overflow-auto rounded-xl border border-ink/10 bg-white p-1 shadow-lg shadow-black/10 transition-all duration-100",
-        align === "end" ? "right-0 origin-top-right" : "left-0 origin-top-left",
-        open ? "visible opacity-100 scale-100" : "invisible opacity-0 scale-95 pointer-events-none",
+        "fixed z-50 overflow-auto rounded-xl border border-ink/10 bg-white p-1 shadow-lg shadow-black/10",
         className
       )}
     >
       {children}
-    </div>
+    </div>,
+    document.body
   );
 }
 

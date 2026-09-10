@@ -188,6 +188,21 @@ html.density-spacious .space-y-4 > :not([hidden]) ~ :not([hidden]) { margin-top:
   html.density-spacious .sm\:p-6 { padding: 2rem; }
 }
 
+/* CardHeader/CardContent/CardFooter pair p-4/sm:p-6 with a narrowed pb-3 or
+   pt-0 to tighten the header-to-content seam. The padding shorthand above
+   resets all four sides, silently re-widening that seam — reassert the
+   narrow side afterward so the seam stays tight at every density. */
+html.density-compact .pb-3,
+html.density-spacious .pb-3 { padding-bottom: 0.75rem; }
+html.density-compact .pt-0,
+html.density-spacious .pt-0 { padding-top: 0; }
+@media (min-width: 640px) {
+  html.density-compact .sm\:pb-3,
+  html.density-spacious .sm\:pb-3 { padding-bottom: 0.75rem; }
+  html.density-compact .sm\:pt-0,
+  html.density-spacious .sm\:pt-0 { padding-top: 0; }
+}
+
 @theme {
   --color-ink: var(--ink);
   --color-ink-soft: var(--ink-soft);

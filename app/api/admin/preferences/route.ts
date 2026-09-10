@@ -36,6 +36,12 @@ function validatePreferences(body: unknown): Record<string, unknown> {
       case "accentColor":
         if (typeof value !== "string" || !HEX_COLOR.test(value)) throw new Error(`Invalid accentColor: ${value}`);
         break;
+      case "avatarStyle":
+        if (value !== null && typeof value !== "string") throw new Error(`Invalid avatarStyle: ${value}`);
+        break;
+      case "avatarSeed":
+        if (value !== null && typeof value !== "string") throw new Error(`Invalid avatarSeed: ${value}`);
+        break;
       default:
         throw new Error(`Unknown preference key: ${key}`);
     }

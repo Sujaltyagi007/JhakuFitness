@@ -17,9 +17,9 @@ import {
   BarChart2,
   Star,
   Loader2,
-  type LucideIcon,
 } from "lucide-react";
 import { StatCardSkeleton, ChartSkeleton } from "@/components/ui/Skeletons";
+import { StatCard } from "@/components/ui/StatCard";
 import { getInventory, getProducts, getCategories } from "@/lib/api";
 import { usePreferences } from "@/components/admin/PreferencesProvider";
 
@@ -52,27 +52,6 @@ function fmtCurrency(n: number, currency: "INR" | "USD" = "INR") {
 
 
 // ─── sub-components ─────────────────────────────────────────────────────────
-
-function KpiCard({ label, value, sub, icon: Icon, accent }: {
-  label: string;
-  value: string | number;
-  sub: string;
-  icon: LucideIcon;
-  accent?: string;
-}) {
-  return (
-    <Card>
-      <CardHeader className="flex flex-row items-center justify-between pb-2">
-        <CardTitle className="text-sm font-medium text-steel">{label}</CardTitle>
-        <Icon size={18} className={accent ?? "text-gold-deep"} />
-      </CardHeader>
-      <CardContent>
-        <div className="font-display text-2xl font-bold">{value}</div>
-        <p className="mt-1 text-xs text-steel">{sub}</p>
-      </CardContent>
-    </Card>
-  );
-}
 
 // Horizontal bar chart — pure CSS, no library
 function HBarChart({
@@ -236,10 +215,10 @@ export default function AnalyticsTab() {
     <div className="space-y-6">
       {/* KPI row */}
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-        <KpiCard label="Total Products" value={products.length} sub="In active catalog" icon={Package} />
-        <KpiCard label="Featured Flagships" value={featuredCount} sub="Pinned on carousel" icon={Star} />
-        <KpiCard label="Total Stock Units" value={totalUnits} sub="Across all SKUs" icon={Layers} />
-        <KpiCard label="Inventory Value" value={fmtCurrency(totalValue, currency)} sub="Ex-GST estimate" icon={IndianRupee} accent={totalValue > 0 ? "text-emerald-600" : "text-steel"} />
+        <StatCard label="Total Products" value={products.length} sub="In active catalog" icon={Package} />
+        <StatCard label="Featured Flagships" value={featuredCount} sub="Pinned on carousel" icon={Star} />
+        <StatCard label="Total Stock Units" value={totalUnits} sub="Across all SKUs" icon={Layers} />
+        <StatCard label="Inventory Value" value={fmtCurrency(totalValue, currency)} sub="Ex-GST estimate" icon={IndianRupee} iconClassName={totalValue > 0 ? "text-emerald-600" : "text-steel"} />
       </div>
 
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2">

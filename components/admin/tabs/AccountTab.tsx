@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { type AdminUser } from "@/lib/useAdminAuth";
-import { User, Shield, Bell, Settings, Database, Trash2, Smartphone, Download, Loader2 } from "lucide-react";
+import { User, Shield, Bell, Settings, Database, Trash2, Smartphone, Download, Loader2, Check, RefreshCw } from "lucide-react";
 import { toast } from "@/components/ui/Toast";
 
 import { updateAccount } from "@/lib/api";
@@ -19,6 +19,11 @@ export default function AccountTab({ user, activeTab = "profile", onTabChange }:
   const { preferences, updatePreferences, isLoading: isSavingPrefs } = usePreferences();
   const [lowStockAlerts, setLowStockAlerts] = useState(true);
   const [newSignupAlerts, setNewSignupAlerts] = useState(false);
+  const [isCustomizingAvatar, setIsCustomizingAvatar] = useState(false);
+  const [tempAvatarStyle, setTempAvatarStyle] = useState(preferences.avatarStyle || "bottts");
+  const [tempAvatarSeed, setTempAvatarSeed] = useState(preferences.avatarSeed || user?.name || "Felix");
+
+  const avatarStyles = ["bottts", "adventurer", "notionists", "lorelei", "fun-emoji"];
 
   useEffect(() => {
     setLowStockAlerts(localStorage.getItem("adminLowStockAlerts") !== "false");
@@ -116,13 +121,60 @@ export default function AccountTab({ user, activeTab = "profile", onTabChange }:
               <p className="text-sm text-stone-500 mt-1">Manage your personal information and identity.</p>
             </div>
             <div className="space-y-4">
-              <div className="flex items-center gap-4">
-                <div className="w-16 h-16 rounded-full bg-stone-100 flex items-center justify-center text-xl font-bold text-stone-600">
-                  {user?.name?.substring(0, 2).toUpperCase() || "AD"}
+              <div className="flex flex-col gap-4">
+                <div className="flex items-center gap-4">
+                  <div className="w-16 h-16 rounded-full bg-stone-100 flex items-center justify-center text-xl font-bold text-stone-600 overflow-hidden border-2 border-stone-200">
+                    {preferences.avatarStyle ? (
+                      /* eslint-disable-next-line @next/next/no-img-element */
+                      <img src={`https://api.dicebear.com/9.x/${preferences.avatarStyle}/svg?seed=${preferences.avatarSeed || user?.name}`} alt="avatar" className="w-full h-full object-cover" />
+                    ) : (
+                      user?.name?.substring(0, 2).toUpperCase() || "AD"
+                    )}
+                  </div>
+                  <div className="flex gap-2">
+                    <button onClick={() => { setIsCustomizingAvatar(true); setTempAvatarStyle(preferences.avatarStyle || "bottts"); setTempAvatarSeed(preferences.avatarSeed || user?.name || "Felix"); }} className="px-4 py-2 border border-stone-200 rounded-xl text-sm font-medium text-stone-700 hover:bg-stone-50 transition-colors">
+                      {preferences.avatarStyle ? "Change Character" : "Create Character"}
+                    </button>
+                    {preferences.avatarStyle && (
+                      <button onClick={() => { handlePrefChange("avatarStyle", null); handlePrefChange("avatarSeed", null); }} className="px-3 py-2 text-red-500 hover:bg-red-50 rounded-xl transition-colors text-sm font-medium">
+                        Remove
+                      </button>
+                    )}
+                  </div>
                 </div>
-                <button className="px-4 py-2 border border-stone-200 rounded-xl text-sm font-medium text-stone-700 hover:bg-stone-50 transition-colors">
-                  Change Avatar
-                </button>
+
+                {isCustomizingAvatar && (
+                  <div className="p-4 border border-stone-200 rounded-2xl bg-stone-50 space-y-4 animate-in fade-in slide-in-from-top-2">
+                    <div className="flex items-center gap-4">
+                      <div className="w-16 h-16 rounded-full bg-white flex items-center justify-center overflow-hidden border border-stone-200 shrink-0">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src={`https://api.dicebear.com/9.x/${tempAvatarStyle}/svg?seed=${tempAvatarSeed}`} alt="preview" className="w-full h-full object-cover" />
+                      </div>
+                      <div className="flex flex-col gap-2 flex-1">
+                        <label className="text-xs font-semibold text-stone-700 uppercase tracking-wide">Choose Style</label>
+                        <div className="flex gap-2 flex-wrap">
+                          {avatarStyles.map(style => (
+                            <button key={style} onClick={() => setTempAvatarStyle(style)} className={`px-3 py-1.5 rounded-lg text-xs font-medium capitalize border transition-colors ${tempAvatarStyle === style ? 'bg-gold text-black border-transparent shadow-sm' : 'bg-white border-stone-200 text-stone-600 hover:bg-stone-100'}`}>
+                              {style}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3 pt-2 border-t border-stone-200/60">
+                      <button onClick={() => setTempAvatarSeed(Math.random().toString(36).substring(7))} className="px-4 py-2 bg-stone-900 text-white rounded-xl text-sm font-medium flex items-center gap-2 hover:bg-stone-800 transition-colors">
+                        <RefreshCw size={14} /> Shuffle
+                      </button>
+                      <div className="flex-1" />
+                      <button onClick={() => setIsCustomizingAvatar(false)} className="px-4 py-2 text-stone-500 hover:text-stone-700 text-sm font-medium transition-colors">
+                        Cancel
+                      </button>
+                      <button onClick={() => { handlePrefChange("avatarStyle", tempAvatarStyle); handlePrefChange("avatarSeed", tempAvatarSeed); setIsCustomizingAvatar(false); }} className="px-4 py-2 bg-emerald-500 text-white rounded-xl text-sm font-medium hover:bg-emerald-600 transition-colors">
+                        Save Avatar
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4">
                 <div>
@@ -215,32 +267,56 @@ export default function AccountTab({ user, activeTab = "profile", onTabChange }:
                 </div>
                 <div>
                   <label className="block text-xs font-semibold text-stone-700 mb-1.5 uppercase tracking-wide">Accent Color</label>
-                  <div className="flex gap-2">
+                  <div className="flex gap-3">
                     {[
                       { name: "Gold", hex: "#fbbf24" },
                       { name: "Ocean", hex: "#3b82f6" },
                       { name: "Emerald", hex: "#10b981" },
                       { name: "Rose", hex: "#e11d48" },
-                    ].map(c => (
-                      <button key={c.hex} onClick={() => handlePrefChange("accentColor", c.hex)} title={c.name}
-                        className={`w-8 h-8 rounded-full border-2 transition-transform hover:scale-110 ${preferences.accentColor === c.hex ? "border-stone-900 scale-110" : "border-transparent"}`}
-                        style={{ backgroundColor: c.hex }}
-                      />
-                    ))}
+                    ].map(c => {
+                      const isSelected = preferences.accentColor === c.hex;
+                      return (
+                        <button key={c.hex} onClick={() => handlePrefChange("accentColor", c.hex)} title={c.name}
+                          className="relative w-10 h-10 rounded-full flex items-center justify-center transition-all hover:scale-110"
+                          style={{
+                            backgroundColor: c.hex,
+                            boxShadow: isSelected ? `0 0 0 2px white, 0 0 0 4px ${c.hex}, 0 4px 6px -1px rgba(0,0,0,0.15)` : undefined,
+                          }}
+                        >
+                          {isSelected && <Check className="w-5 h-5 text-white drop-shadow" strokeWidth={3} />}
+                        </button>
+                      );
+                    })}
                   </div>
+                  <p className="text-xs text-stone-500 mt-2">
+                    Selected: {["Gold", "Ocean", "Emerald", "Rose"][["#fbbf24", "#3b82f6", "#10b981", "#e11d48"].indexOf(preferences.accentColor ?? "#fbbf24")] ?? "Gold"}
+                  </p>
                 </div>
               </div>
               <div className="space-y-4">
                 <div>
                   <label className="block text-xs font-semibold text-stone-700 mb-1.5 uppercase tracking-wide">Layout Density</label>
-                  <Select value={preferences.density ?? "comfortable"} onValueChange={(v) => handlePrefChange("density", v)}>
-                    <SelectTrigger><SelectValue /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="compact">Compact</SelectItem>
-                      <SelectItem value="comfortable">Comfortable</SelectItem>
-                      <SelectItem value="spacious">Spacious</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <div className="grid grid-cols-3 gap-2">
+                    {[
+                      { value: "compact", label: "Compact", gaps: [2, 2] },
+                      { value: "comfortable", label: "Comfortable", gaps: [4, 4] },
+                      { value: "spacious", label: "Spacious", gaps: [7, 7] },
+                    ].map((d) => {
+                      const isSelected = (preferences.density ?? "comfortable") === d.value;
+                      return (
+                        <button key={d.value} type="button" onClick={() => handlePrefChange("density", d.value)}
+                          className={`flex flex-col items-center gap-2 rounded-xl border-2 px-2 py-3 transition-colors ${isSelected ? "border-gold bg-gold/10" : "border-stone-200 hover:border-stone-300"}`}
+                        >
+                          <div className="flex w-8 flex-col" style={{ gap: d.gaps[0] }}>
+                            <span className={`h-1 rounded-full ${isSelected ? "bg-gold-deep" : "bg-stone-300"}`} />
+                            <span className={`h-1 rounded-full ${isSelected ? "bg-gold-deep" : "bg-stone-300"}`} />
+                            <span className={`h-1 rounded-full ${isSelected ? "bg-gold-deep" : "bg-stone-300"}`} />
+                          </div>
+                          <span className={`text-[11px] font-semibold ${isSelected ? "text-gold-deep" : "text-stone-600"}`}>{d.label}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
                 </div>
                 <div>
                   <label className="block text-xs font-semibold text-stone-700 mb-1.5 uppercase tracking-wide">Default Landing Page</label>

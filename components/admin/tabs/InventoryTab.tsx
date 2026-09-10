@@ -2,25 +2,16 @@
 import { Input } from "@/components/ui/input";
 import { toast } from "@/components/ui/Toast";
 import { Button } from "@/components/ui/button";
-import { StatCardSkeleton, ContentHeaderSkeleton, TableRowSkeleton } from "@/components/ui/Skeletons";
 import { useCallback, useEffect, useState } from "react";
-import { useDebouncedCallback } from "@/lib/useDebouncedCallback";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
-import { Package, TrendingUp, TrendingDown, RotateCcw, ChevronDown, ChevronUp, AlertTriangle, IndianRupee, RefreshCw, Loader2 } from "lucide-react";
-import { getInventory, getMovements, updateInventory, recordMovement } from "@/lib/api";
 import { formatCurrency, formatTime } from "@/lib/utils";
+import { useDebouncedCallback } from "@/lib/useDebouncedCallback";
 import { usePreferences } from "@/components/admin/PreferencesProvider";
-import {
-  Pagination,
-  PaginationContent,
-  PaginationEllipsis,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
-} from "@/components/ui/pagination";
-
-// ─── types ────────────────────────────────────────────────────────────────────
+import { getInventory, getMovements, updateInventory, recordMovement } from "@/lib/api";
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
+import { StatCard } from "@/components/ui/StatCard";
+import { StatCardSkeleton, ContentHeaderSkeleton, TableRowSkeleton } from "@/components/ui/Skeletons";
+import { Package, TrendingUp, TrendingDown, RotateCcw, ChevronDown, ChevronUp, AlertTriangle, IndianRupee, RefreshCw, Loader2 } from "lucide-react";
+import { Pagination, PaginationContent, PaginationEllipsis, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
 
 interface StockRow {
   productId: string;
@@ -44,8 +35,6 @@ type StockStatus = "in-stock" | "low-stock" | "out-of-stock";
 
 const MIN_QTY_DEBOUNCE_MS = 600;
 
-// ─── helpers ─────────────────────────────────────────────────────────────────
-
 function getStatus(row: StockRow): StockStatus {
   if (row.qty === 0) return "out-of-stock";
   if (row.qty <= row.minQty) return "low-stock";
@@ -60,15 +49,12 @@ function StatusBadge({ status }: { status: StockStatus }) {
   return <span className="inline-flex items-center gap-1 rounded-full text-nowrap bg-red-50 px-2 py-0.5 text-xs font-semibold text-red-600 border border-red-200">Out of Stock</span>;
 }
 
-// ─── component ────────────────────────────────────────────────────────────────
-
 export default function InventoryTab() {
   const { preferences } = usePreferences();
   const currency = (preferences.currency as "INR" | "USD") || "INR";
   const timeFormat = (preferences.timeFormat as "12h" | "24h") || "12h";
   const fmtCurrency = (n: number) => formatCurrency(n, currency);
   const fmtDate = (iso: string) => formatTime(iso, timeFormat);
-
   const [stock, setStock] = useState<StockRow[]>([]);
   const [movements, setMovements] = useState<Movement[]>([]);
   const [qtyInputs, setQtyInputs] = useState<Record<string, string>>({});
@@ -79,11 +65,7 @@ export default function InventoryTab() {
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [rowErrors, setRowErrors] = useState<Record<string, string>>({});
-  // Rows with a mutation in flight — used to disable their action buttons so a
-  // double-click can't fire two overlapping movements against the same SKU.
   const [pendingRows, setPendingRows] = useState<Set<string>>(new Set());
-
-  // Pagination state
   const [page, setPage] = useState(1);
   const ITEMS_PER_PAGE = 10;
   const setRowPending = (productId: string, pending: boolean) => {
@@ -109,10 +91,7 @@ export default function InventoryTab() {
     setLoading(true);
     setLoadError(null);
     try {
-      const [sData, mData] = await Promise.all([
-        getInventory(),
-        getMovements(),
-      ]);
+      const [sData, mData] = await Promise.all([getInventory(), getMovements()]);
       setStock(sData as StockRow[]);
       setMovements(mData as Movement[]);
     } catch (err) {
@@ -128,11 +107,9 @@ export default function InventoryTab() {
     if (pendingRows.has(productId)) return;
     setRowPending(productId, true);
     setRowError(productId, null);
-
     const delta = type === "IN" ? qty : type === "OUT" ? -qty : qty;
     const previousStock = stock;
     const productName = stock.find((s) => s.productId === productId)?.product.name ?? "";
-
     setStock((prev) => prev.map((s) => s.productId === productId ? { ...s, qty: Math.max(0, s.qty + delta) } : s));
 
     try {
@@ -140,7 +117,6 @@ export default function InventoryTab() {
       setMovements((prev) => [{ ...saved, product: { name: productName } }, ...prev]);
       toast.success(`Stock updated: ${productName} (${type === "IN" ? "+" : type === "OUT" ? "-" : ""}${Math.abs(qty)})`);
     } catch (err) {
-      // Roll back the optimistic qty change.
       setStock(previousStock);
       const errMsg = err instanceof Error ? err.message : "Movement failed";
       setRowError(productId, errMsg);
@@ -237,59 +213,27 @@ export default function InventoryTab() {
 
   return (
     <div className="space-y-6">
-      {/* KPIs */}
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-        <Card className="hover:border-gold/30 hover:shadow-md transition-all">
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-steel">Total Units</CardTitle>
-            <Package size={18} className="text-gold-deep" />
-          </CardHeader>
-          <CardContent>
-            <div className="font-display text-2xl font-bold">{fmt(totalUnits)}</div>
-            <p className="mt-1 text-xs text-steel">Across all SKUs</p>
-          </CardContent>
-        </Card>
-        <Card className="hover:border-gold/30 hover:shadow-md transition-all">
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-steel">Stock Value</CardTitle>
-            <IndianRupee size={18} className="text-gold-deep" />
-          </CardHeader>
-          <CardContent>
-            <div className="font-display text-2xl font-bold">{fmtCurrency(totalValue)}</div>
-            <p className="mt-1 text-xs text-steel">Ex-GST valuation</p>
-          </CardContent>
-        </Card>
-        <Card className="hover:border-amber-500/30 hover:shadow-md transition-all">
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-steel">Low Stock</CardTitle>
-            <AlertTriangle size={18} className="text-amber-500" />
-          </CardHeader>
-          <CardContent>
-            <div className="font-display text-2xl font-bold text-amber-600">{lowCount}</div>
-            <p className="mt-1 text-xs text-steel">Below threshold</p>
-          </CardContent>
-        </Card>
-        <Card className="hover:border-red-400/30 hover:shadow-md transition-all">
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-steel">Out of Stock</CardTitle>
-            <Package size={18} className="text-red-400" />
-          </CardHeader>
-          <CardContent>
-            <div className="font-display text-2xl font-bold text-red-600">{outCount}</div>
-            <p className="mt-1 text-xs text-steel">Zero units on hand</p>
-          </CardContent>
-        </Card>
+        <StatCard label="Total Units" value={fmt(totalUnits)} sub="Across all SKUs" icon={Package}
+          className="hover:border-gold/30 hover:shadow-md" />
+        <StatCard label="Stock Value" value={fmtCurrency(totalValue)} sub="Ex-GST valuation" icon={IndianRupee}
+          className="hover:border-gold/30 hover:shadow-md" />
+        <StatCard label="Low Stock" value={lowCount} sub="Below threshold" icon={AlertTriangle}
+          iconClassName="text-amber-500" valueClassName="text-amber-600"
+          className="hover:border-amber-500/30 hover:shadow-md" />
+        <StatCard label="Out of Stock" value={outCount} sub="Zero units on hand" icon={Package}
+          iconClassName="text-red-400" valueClassName="text-red-600"
+          className="hover:border-red-400/30 hover:shadow-md" />
       </div>
 
-      {/* Stock Table */}
       <Card>
-        <CardHeader>
+        <CardHeader className="py-4! px-6! " >
           <CardTitle>Stock Levels</CardTitle>
           <CardDescription>
             Live inventory from the database. Negative custom qty = stock out.
           </CardDescription>
         </CardHeader>
-        <CardContent className="p-0">
+        <CardContent className="p-0! ">
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm">
               <thead className="border-b border-ink/8 bg-ink/5 text-xs uppercase text-steel">
@@ -299,8 +243,7 @@ export default function InventoryTab() {
                   <th className="px-4 py-4 font-semibold tracking-wider text-center">Qty</th>
                   <th className="px-4 py-4 font-semibold tracking-wider text-center">Min</th>
                   <th className="px-4 py-4 text-center font-semibold tracking-wider">Price (₹)</th>
-                  <th className="px-4 py-4 font-semibold tracking-wider">Quick Actions</th>
-                  <th className="px-4 py-4 font-semibold tracking-wider">Custom Δ</th>
+                  <th className="px-4 py-4 font-semibold tracking-wider">Update Stock</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-ink/8">
@@ -346,36 +289,44 @@ export default function InventoryTab() {
                         )}
                       </td>
                       <td className="px-4 py-4">
-                        <div className="flex items-center gap-1.5">
-                          {[1, 5, 10].map((n) => (
-                            <button key={n} onClick={() => applyMovement(s.productId, "IN", n, `Quick +${n}`)}
-                              disabled={isPending}
-                              className="flex h-8 px-2.5 items-center justify-center rounded-full bg-emerald-500/10 text-xs font-bold text-emerald-600 hover:bg-emerald-500/20 hover:-translate-y-0.5 transition-all disabled:opacity-50 disabled:pointer-events-none">
-                              +{n}
-                            </button>
-                          ))}
-                          <div className="w-px h-5 bg-ink/10 mx-1" />
-                          <button onClick={() => applyMovement(s.productId, "OUT", 1, "Quick -1")}
-                            disabled={isPending || s.qty === 0}
-                            className="flex h-8 px-2.5 items-center justify-center rounded-full bg-red-500/10 text-xs font-bold text-red-600 hover:bg-red-500/20 hover:-translate-y-0.5 transition-all disabled:opacity-50">
-                            -1
-                          </button>
-                          {isPending && <Loader2 size={14} className="animate-spin text-steel ml-1" />}
-                        </div>
-                      </td>
-                      <td className="px-4 py-4">
                         <div className="flex items-center gap-2">
-                          <Input type="number" value={qtyInputs[s.productId] ?? ""}
-                            onChange={(e) => setQtyInputs((prev) => ({ ...prev, [s.productId]: e.target.value }))}
-                            placeholder="± Qty" className="h-9 w-20 text-xs rounded-xl bg-ink/5 border-transparent focus:bg-white transition-colors" />
-                          <Input value={noteInputs[s.productId] ?? ""}
-                            onChange={(e) => setNoteInputs((prev) => ({ ...prev, [s.productId]: e.target.value }))}
-                            placeholder="Note (opt)" className="h-9 w-28 text-xs rounded-xl bg-ink/5 border-transparent focus:bg-white transition-colors" />
-                          <Button variant="default" size="sm"
-                            className="h-9 text-xs px-4 rounded-xl shadow-sm hover:shadow-md transition-all disabled:opacity-50"
-                            onClick={() => applyCustomQty(s.productId)} disabled={isPending || !qtyInputs[s.productId]}>
-                            Apply
-                          </Button>
+                          <div className="flex items-center rounded-lg bg-ink/5 p-0.5 border border-ink/5 shadow-sm">
+                            <button onClick={() => applyMovement(s.productId, "OUT", 1, "Quick -1")} disabled={isPending || s.qty === 0} className="flex h-7 w-7 items-center justify-center rounded-md hover:bg-white text-steel hover:text-red-600 disabled:opacity-50 transition-colors font-medium">
+                              -1
+                            </button>
+                            <div className="w-px h-4 bg-ink/10 mx-0.5" />
+                            <button onClick={() => applyMovement(s.productId, "IN", 1, "Quick +1")} disabled={isPending} className="flex h-7 w-7 items-center justify-center rounded-md hover:bg-white text-steel hover:text-emerald-600 disabled:opacity-50 transition-colors font-medium">
+                              +1
+                            </button>
+                            <button onClick={() => applyMovement(s.productId, "IN", 5, "Quick +5")} disabled={isPending} className="flex h-7 w-8 items-center justify-center rounded-md hover:bg-white text-steel hover:text-emerald-600 font-medium text-[10px] disabled:opacity-50 transition-colors">
+                              +5
+                            </button>
+                          </div>
+
+                          <div className="flex items-center h-8 rounded-lg border border-ink/10 bg-white overflow-hidden focus-within:ring-2 focus-within:ring-gold/30 transition-shadow shadow-sm">
+                            <input
+                              type="number"
+                              value={qtyInputs[s.productId] ?? ""}
+                              onChange={(e) => setQtyInputs((prev) => ({ ...prev, [s.productId]: e.target.value }))}
+                              placeholder="± Qty"
+                              className="w-16 h-full text-xs text-center border-none focus:outline-none bg-transparent"
+                            />
+                            <div className="w-px h-full bg-ink/10" />
+                            <input
+                              type="text"
+                              value={noteInputs[s.productId] ?? ""}
+                              onChange={(e) => setNoteInputs((prev) => ({ ...prev, [s.productId]: e.target.value }))}
+                              placeholder="Note..."
+                              className="w-24 h-full text-xs px-2 border-none focus:outline-none bg-transparent hidden lg:block"
+                            />
+                            <button
+                              onClick={() => applyCustomQty(s.productId)}
+                              disabled={isPending || !qtyInputs[s.productId]}
+                              className="h-full px-3 text-xs font-medium bg-ink/5 hover:bg-ink/10 text-ink disabled:opacity-50 transition-colors flex items-center justify-center min-w-12"
+                            >
+                              {isPending ? <Loader2 size={12} className="animate-spin" /> : "Set"}
+                            </button>
+                          </div>
                         </div>
                       </td>
                     </tr>
@@ -463,7 +414,7 @@ export default function InventoryTab() {
                       <tr key={m.id} className="hover:bg-ink/2 transition-colors">
                         <td className="px-4 py-2.5 text-xs text-steel whitespace-nowrap">{fmtDate(m.date)}</td>
                         <td className="px-4 py-2.5"><span className="font-medium text-ink">{m.product.name}</span></td>
-                        <td className="px-4 py-2.5"> {m.type === "IN" ? (<span className="inline-flex items-center gap-1 text-xs font-semibold text-emerald-700"><TrendingUp size={12} /> IN</span>) : m.type === "OUT" ? (<span className="inline-flex items-center gap-1 text-xs font-semibold text-red-600"><TrendingDown size={12} /> OUT</span>) : (<span className="inline-flex items-center gap-1 text-xs font-semibold text-steel"><RotateCcw size={12} /> ADJ</span>) }
+                        <td className="px-4 py-2.5"> {m.type === "IN" ? (<span className="inline-flex items-center gap-1 text-xs font-semibold text-emerald-700"><TrendingUp size={12} /> IN</span>) : m.type === "OUT" ? (<span className="inline-flex items-center gap-1 text-xs font-semibold text-red-600"><TrendingDown size={12} /> OUT</span>) : (<span className="inline-flex items-center gap-1 text-xs font-semibold text-steel"><RotateCcw size={12} /> ADJ</span>)}
                         </td>
                         <td className="px-4 py-2.5 text-center font-semibold">{m.qty}</td>
                         <td className="px-4 py-2.5 text-xs text-steel">{m.note}</td>

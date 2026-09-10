@@ -5,12 +5,24 @@ import { toast } from "@/components/ui/Toast";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { CategoryId, ModelKind } from "@/lib/types";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { TableRowSkeleton } from "@/components/ui/Skeletons";
-import { getProducts, getCategories, updateProduct, deleteProduct } from "@/lib/api";
+import { getProductsPage, getCategories, updateProduct, deleteProduct } from "@/lib/api";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
+import { Portal } from "@/components/ui/Portal";
 import { Search, Edit2, ExternalLink, Image as ImageIcon, Video, Check, X, Plus, Trash2, Loader2, Star } from "lucide-react";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
+
+const ITEMS_PER_PAGE = 10;
 
 
 interface DbCategory {
@@ -46,13 +58,15 @@ export default function ProductsTab() {
   const [saving, setSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(1);
+  const [total, setTotal] = useState(0);
 
-  const fetchProducts = useCallback(async () => {
+  const fetchProducts = useCallback(async (targetPage: number, search: string) => {
     setLoading(true);
     try {
-      const [pData, cData] = await Promise.all([getProducts(), getCategories()]);
-      setProducts(pData as DbProduct[]);
-      setCategories(cData as DbCategory[]);
+      const data = await getProductsPage({ page: targetPage, pageSize: ITEMS_PER_PAGE, search });
+      setProducts(data.products as DbProduct[]);
+      setTotal(data.total);
     } catch (err: unknown) {
       toast.error(err instanceof Error ? err.message : "Failed to load products");
     } finally {
@@ -60,11 +74,29 @@ export default function ProductsTab() {
     }
   }, []);
 
-  useEffect(() => { fetchProducts(); }, [fetchProducts]);
+  useEffect(() => {
+    getCategories().then((c) => setCategories(c as DbCategory[])).catch((err: unknown) => {
+      toast.error(err instanceof Error ? err.message : "Failed to load categories");
+    });
+  }, []);
 
-  const filtered = products.filter((p) => p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    p.categoryId.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    p.specialFeature.toLowerCase().includes(searchTerm.toLowerCase()));
+  const isFirstFetch = useRef(true);
+  useEffect(() => {
+    if (isFirstFetch.current) {
+      isFirstFetch.current = false;
+      fetchProducts(page, searchTerm);
+      return;
+    }
+    const t = setTimeout(() => { fetchProducts(page, searchTerm); }, 300);
+    return () => clearTimeout(t);
+  }, [page, searchTerm, fetchProducts]);
+
+  const handleSearchChange = (value: string) => {
+    setSearchTerm(value);
+    setPage(1);
+  };
+
+  const totalPages = Math.max(1, Math.ceil(total / ITEMS_PER_PAGE));
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -101,8 +133,9 @@ export default function ProductsTab() {
     if (!confirm("Delete this product? This cannot be undone.")) return;
     try {
       await deleteProduct(id);
-      setProducts((prev) => prev.filter((p) => p.id !== id));
       toast.success("Product deleted successfully");
+      const isLastItemOnPage = products.length === 1 && page > 1;
+      if (isLastItemOnPage) setPage(page - 1); else fetchProducts(page, searchTerm);
     } catch (err: unknown) {
       toast.error(err instanceof Error ? err.message : "Failed to delete product");
     }
@@ -147,18 +180,18 @@ export default function ProductsTab() {
 
   return (
     <div className="space-y-6">
-      <Card>
-        <CardHeader className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <Card className="border-none! shadow-none!" >
+        <CardHeader className="flex flex-col gap-4 sm:flex-row sm:px-2! sm:py-3! sm:items-center sm:justify-between">
           <div>
             <CardTitle>Equipment Catalog</CardTitle>
             <CardDescription>
-              {loading ? "Loading from database…" : `${products.length} products in the live database.`}
+              {loading ? "Loading from database…" : `${total} products in the live database.`}
             </CardDescription>
           </div>
           <div className="w-full sm:w-72 relative">
             <Input
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              onChange={(e) => handleSearchChange(e.target.value)}
               placeholder="Search equipment..."
               className="pl-9"
             />
@@ -166,36 +199,42 @@ export default function ProductsTab() {
           </div>
         </CardHeader>
 
-        <CardContent>
-          {loading ? (
-            <div className="flex flex-col space-y-4 py-4">
-              <TableRowSkeleton />
-              <TableRowSkeleton />
-              <TableRowSkeleton />
-              <TableRowSkeleton />
-              <TableRowSkeleton />
-            </div>
-          ) : (
-            <div className="overflow-x-auto rounded-xl border border-ink/8">
-              <table className="w-full text-left text-sm">
-                <thead className="border-b border-ink/8 bg-ink/3 text-xs uppercase text-steel">
+        <CardContent className="sm:px-0! sm:py-0!" >
+          <div className="overflow-x-auto rounded-xl border border-ink/8">
+            <table className="w-full text-left text-sm">
+              <thead className="border-b border-ink/8 bg-ink/3 text-xs uppercase text-steel">
+                <tr>
+                  <th className="px-4 py-3">Machine</th>
+                  <th className="px-4 py-3">Category</th>
+                  <th className="px-4 py-3">Featured</th>
+                  <th className="px-4 py-3">Media</th>
+                  <th className="px-4 py-3 text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-ink/8">
+                {loading ? (
+                  Array.from({ length: 10 }).map((_, i) => (
+                    <tr key={i}>
+                      <td colSpan={5} className="px-4 py-3">
+                        <TableRowSkeleton />
+                      </td>
+                    </tr>
+                  ))
+                ) : products.length === 0 ? (
                   <tr>
-                    <th className="px-4 py-3">Machine</th>
-                    <th className="px-4 py-3">Category</th>
-                    <th className="px-4 py-3">Featured</th>
-                    <th className="px-4 py-3">Media</th>
-                    <th className="px-4 py-3 text-right">Actions</th>
+                    <td colSpan={10} className="py-8 text-center text-steel">
+                      No equipment found matching your criteria.
+                    </td>
                   </tr>
-                </thead>
-                <tbody className="divide-y divide-ink/8">
-                  {filtered.map((p) => (
+                ) : (
+                  products.map((p) => (
                     <tr key={p.id} className="hover:bg-ink/2 transition-colors">
-                      <td className="px-4 py-3">
+                      <td className="px-4 py-3 max-w-xs">
                         <div className="font-semibold text-ink">{p.name}</div>
                         <div className="text-xs text-steel line-clamp-1">{p.tagline}</div>
                       </td>
                       <td className="px-4 py-3">
-                        <Badge variant="secondary" className="capitalize">
+                        <Badge variant="secondary" className="capitalize text-ink! border-ink/40 ">
                           {p.categoryId.replace(/-/g, " ")}
                         </Badge>
                       </td>
@@ -233,17 +272,64 @@ export default function ProductsTab() {
                         </div>
                       </td>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+          {!loading && total > 0 && (
+            <div className="flex flex-wrap items-center justify-center sm:justify-between gap-3 border-t border-ink/8 px-4 py-3">
+              <div className="text-sm text-steel">
+                Showing <span className="font-medium text-ink">{(page - 1) * ITEMS_PER_PAGE + 1}</span> to{" "}
+                <span className="font-medium text-ink">
+                  {Math.min(page * ITEMS_PER_PAGE, total)}
+                </span>{" "}
+                of <span className="font-medium text-ink">{total}</span> products
+              </div>
+              <Pagination className="w-auto mx-0">
+                <PaginationContent>
+                  <PaginationItem>
+                    <PaginationPrevious onClick={() => setPage((p) => Math.max(1, p - 1))} className={page === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"} />
+                  </PaginationItem>
+
+                  {Array.from({ length: totalPages }).map((_, i) => {
+                    const p = i + 1;
+                    if (p === 1 || p === totalPages || Math.abs(p - page) <= 1) {
+                      return (
+                        <PaginationItem key={p}>
+                          <PaginationLink isActive={p === page} onClick={() => setPage(p)} className="cursor-pointer">
+                            {p}
+                          </PaginationLink>
+                        </PaginationItem>
+                      );
+                    }
+                    if (Math.abs(p - page) === 2) {
+                      return (
+                        <PaginationItem key={p}>
+                          <PaginationEllipsis />
+                        </PaginationItem>
+                      );
+                    }
+                    return null;
+                  })}
+
+                  <PaginationItem>
+                    <PaginationNext
+                      onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                      className={page === totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                    />
+                  </PaginationItem>
+                </PaginationContent>
+              </Pagination>
             </div>
           )}
         </CardContent>
       </Card>
 
       {editingProduct && (
+        <Portal>
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-ink/40 p-4 backdrop-blur-sm">
-          <div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-2xl bg-white p-6 shadow-2xl border border-ink/10">
+          <div className="max-h-[90dvh] w-full max-w-2xl overflow-y-auto rounded-2xl bg-white p-6 shadow-2xl border border-ink/10">
             <div className="flex items-center justify-between border-b border-ink/10 pb-4">
               <div>
                 <h2 className="text-lg font-bold text-ink">Edit Equipment</h2>
@@ -343,7 +429,6 @@ export default function ProductsTab() {
                 </div>
               </div>
 
-              {/* Feature Bullets */}
               <div className="rounded-xl border border-ink/10 p-4 space-y-3">
                 <div className="flex items-center justify-between">
                   <h4 className="text-xs font-bold uppercase tracking-wider text-steel">Feature Bullets</h4>
@@ -376,6 +461,7 @@ export default function ProductsTab() {
             </form>
           </div>
         </div>
+        </Portal>
       )}
     </div>
   );

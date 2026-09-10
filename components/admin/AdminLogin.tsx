@@ -87,13 +87,6 @@ export default function AdminLogin({ onSuccess }: AdminLoginProps) {
                 "Unlock Dashboard"
               )}
             </Button>
-
-            {/* <div className="flex flex-col items-center text-start w-full text-xs text-steel/70">
-              <p>Default Super User:</p>
-              <div className="flex gap-3 bg-stone-200 items-center px-2 rounded-xl " >
-                <code className="rounded py-0.5 font-mono text-ink">superadmin@jhakufitness.com</code> / <code className="rounded py-0.5 font-mono text-ink">Jhaku@SuperAdmin2026!</code>
-              </div>
-            </div> */}
           </form>
         </CardContent>
       </Card>

@@ -1,13 +1,59 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { Prisma } from "@/lib/generated/prisma/client";
 
-/** GET /api/admin/products — list all products with stock */
-export async function GET() {
-  const products = await prisma.product.findMany({
-    include: { category: true, stock: true },
-    orderBy: { createdAt: "asc" },
+const DEFAULT_PAGE_SIZE = 10;
+const MAX_PAGE_SIZE = 100;
+
+/**
+ * GET /api/admin/products — list all products with stock.
+ * Pass ?page= to get a paginated, search-filtered page instead of the full catalog
+ * (optional &pageSize= and &search=).
+ */
+export async function GET(req: NextRequest) {
+  const { searchParams } = new URL(req.url);
+  const pageParam = searchParams.get("page");
+
+  if (!pageParam) {
+    const products = await prisma.product.findMany({
+      include: { category: true, stock: true },
+      orderBy: { createdAt: "asc" },
+    });
+    return NextResponse.json(products);
+  }
+
+  const page = Math.max(1, parseInt(pageParam, 10) || 1);
+  const pageSize = Math.min(MAX_PAGE_SIZE, Math.max(1, parseInt(searchParams.get("pageSize") ?? "", 10) || DEFAULT_PAGE_SIZE));
+  const search = searchParams.get("search")?.trim() || "";
+
+  const where: Prisma.ProductWhereInput = search
+    ? {
+        OR: [
+          { name: { contains: search, mode: "insensitive" } },
+          { categoryId: { contains: search, mode: "insensitive" } },
+          { specialFeature: { contains: search, mode: "insensitive" } },
+        ],
+      }
+    : {};
+
+  const [products, total] = await Promise.all([
+    prisma.product.findMany({
+      where,
+      include: { category: true, stock: true },
+      orderBy: { createdAt: "asc" },
+      skip: (page - 1) * pageSize,
+      take: pageSize,
+    }),
+    prisma.product.count({ where }),
+  ]);
+
+  return NextResponse.json({
+    products,
+    total,
+    page,
+    pageSize,
+    totalPages: Math.max(1, Math.ceil(total / pageSize)),
   });
-  return NextResponse.json(products);
 }
 
 /** POST /api/admin/products — create a new product */

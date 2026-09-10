@@ -231,8 +231,7 @@ export default function MediaTab() {
   };
 
   return (
-    <div className="space-y-6">
-      {/* Hidden file input for replacement */}
+    <div className="">
       <input
         ref={replaceInputRef}
         type="file"
@@ -241,8 +240,8 @@ export default function MediaTab() {
         className="hidden"
       />
 
-      <Card className="border-ink/8 shadow-xs bg-white">
-        <CardHeader className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <Card className=" shadow-none! bg-white border-none! ">
+        <CardHeader className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between px-6! py-0! ">
           <div>
             <CardTitle className="text-ink text-xl font-bold">Media & Asset Studio</CardTitle>
             <CardDescription className="text-steel text-xs mt-1">
@@ -256,7 +255,7 @@ export default function MediaTab() {
           </Tooltip>
         </CardHeader>
 
-        <CardContent className="space-y-6">
+        <CardContent className="space-y-6 px-0! py-2! ">
           <div onClick={() => !isUploading && fileInputRef.current?.click()} className={`group flex flex-col items-center justify-center rounded-2xl border-2 border-dashed transition-all p-8 text-center ${isUploading ? "border-gold/50 bg-gold/5 cursor-wait" : "border-ink/15 bg-transparent cursor-pointer hover:border-gold hover:bg-gold/5"}`} >
             <input ref={fileInputRef} type="file" onChange={handleFileUpload} accept="image/*,video/mp4,video/webm,.pdf" className="hidden" disabled={isUploading} />
 

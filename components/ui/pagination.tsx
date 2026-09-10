@@ -51,8 +51,9 @@ const PaginationLink = ({
   <button
     aria-current={isActive ? "page" : undefined}
     className={cn(
-      "inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/40 disabled:pointer-events-none disabled:opacity-50 hover:bg-theme-surface-hover hover:text-theme-text h-10 w-10",
-      isActive ? "border border-theme-border bg-theme-surface-hover" : "bg-transparent",
+      "inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/40 disabled:pointer-events-none disabled:opacity-50 hover:bg-theme-surface-hover hover:text-ink",
+      size === "icon" ? "h-9 w-9" : "h-9 px-4",
+      isActive ? "border border-ink bg-theme-surface-hover text-ink" : "bg-transparent text-ink",
       className
     )}
     {...props}

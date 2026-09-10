@@ -3,6 +3,7 @@ import { toast } from "@/components/ui/Toast";
 import React, { useState, useEffect } from "react";
 import { Shield, Plus, Edit2, Trash2, RefreshCw, Lock, Check } from "lucide-react";
 import { getRoles, getPermissions, createRole, updateRole, deleteRole } from "@/lib/api";
+import { Portal } from "@/components/ui/Portal";
 
 interface PermissionItem {
   id: string;
@@ -238,8 +239,9 @@ export function RolesTab() {
       )}
 
       {isModalOpen && (
+        <Portal>
         <div className="fixed inset-0 z-50 bg-ink/40 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white border border-ink/10 rounded-2xl p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl space-y-4">
+          <div className="bg-white border border-ink/10 rounded-2xl p-6 w-full max-w-2xl max-h-[90dvh] overflow-y-auto shadow-2xl space-y-4">
             <h3 className="text-base font-bold text-ink flex items-center gap-2">
               <Shield className="w-5 h-5 text-gold-deep" />
               {editingRole ? `Edit Role: ${editingRole.name}` : "Create Custom Role"}
@@ -349,6 +351,7 @@ export function RolesTab() {
             </form>
           </div>
         </div>
+        </Portal>
       )}
     </div>
   );

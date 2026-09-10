@@ -12,11 +12,10 @@ interface FeaturedCarouselProps {
 export default function FeaturedCarousel({ products }: FeaturedCarouselProps) {
   const scrollerRef = useRef<HTMLDivElement>(null);
   const scroll = (dir: 1 | -1) => scrollerRef.current?.scrollBy({ left: dir * 340, behavior: "smooth" });
-
   if (products.length === 0) return null;
 
   return (
-    <section className="border-y border-ink/8 bg-white py-20 sm:py-24">
+    <section className="border-y border-ink/8 bg-white py-10 ">
       <Container>
         <div className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
           <SectionHeading eyebrow="Featured this month" title="Our most requested equipment"

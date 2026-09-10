@@ -23,13 +23,24 @@ interface ContentBlock {
 const AUTOSAVE_DELAY_MS = 900;
 
 
-function Textarea({ value, onChange, rows = 3 }: { value: string; onChange: (v: string) => void; rows?: number }) {
+function Textarea({ value, onChange, rows = 2 }: { value: string; onChange: (v: string) => void; rows?: number }) {
+  const ref = useRef<HTMLTextAreaElement>(null);
+
+  const resize = useCallback((el: HTMLTextAreaElement) => {
+    el.style.height = "auto";
+    el.style.height = `${el.scrollHeight}px`;
+  }, []);
+
+  useEffect(() => {
+    if (ref.current) resize(ref.current);
+  }, [value, resize]);
+
   return (
-    <textarea value={value}
-      onChange={(e) => onChange(e.target.value)}
+    <textarea ref={ref} value={value}
+      onChange={(e) => { onChange(e.target.value); resize(e.target); }}
       rows={rows}
       maxLength={300}
-      className="mt-1 w-full rounded-lg border border-ink/15 bg-white px-3 py-2 text-sm text-ink outline-none focus:border-gold resize-none leading-relaxed"
+      className="mt-1 w-full rounded-lg border border-ink/15 bg-white px-3 py-2 text-sm text-ink outline-none focus:border-gold resize-none leading-relaxed overflow-hidden"
     />
   );
 }
@@ -103,8 +114,7 @@ const BlockField = memo(function BlockField({ label, block, onChange }: {
         <Input
           value={block.title ?? ""}
           onChange={(e) => {
-            let val = e.target.value;
-            val = val.replace(/^\s+/, '').replace(/[0-9]/g, '');
+            const val = e.target.value.replace(/^\s+/, '');
             onChange(block.slug, "title", val);
           }}
           minLength={3}
@@ -241,7 +251,7 @@ export default function ContentTab() {
             <CardHeader>
               <ContentHeaderSkeleton />
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-3">
               <FormFieldSkeleton />
               <FormFieldSkeleton />
             </CardContent>
@@ -317,7 +327,7 @@ export default function ContentTab() {
         </div>
       </div>
 
-      <div className="flex-1 space-y-8">
+      <div className="flex-1 space-y-6">
         {activeTab === "site-info" && (
           <Fragment>
             <Card>
@@ -325,7 +335,7 @@ export default function ContentTab() {
                 <CardTitle>Hero Section</CardTitle>
                 <CardDescription>Homepage banner text and location badge.</CardDescription>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-3">
                 <SettingField label="Headline (use \n for line break)" settingKey="hero.headline" value={settings["hero.headline"] ?? ""} multiline onChange={handleSettingChange} />
                 <SettingField label="Sub-text" settingKey="hero.subtext" value={settings["hero.subtext"] ?? ""} multiline onChange={handleSettingChange} />
                 <SettingField label="Location Badge" settingKey="hero.locationBadge" value={settings["hero.locationBadge"] ?? ""} onChange={handleSettingChange} />
@@ -337,7 +347,7 @@ export default function ContentTab() {
                 <CardTitle>Newsletter Section</CardTitle>
                 <CardDescription>CTA heading and subtext for the newsletter sign-up.</CardDescription>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-3">
                 <SettingField label="Heading" settingKey="newsletter.heading" value={settings["newsletter.heading"] ?? ""} onChange={handleSettingChange} />
                 <SettingField label="Sub-text" settingKey="newsletter.subtext" value={settings["newsletter.subtext"] ?? ""} multiline onChange={handleSettingChange} />
               </CardContent>
@@ -351,7 +361,7 @@ export default function ContentTab() {
               <CardTitle>Contact Details</CardTitle>
               <CardDescription>Global contact details used in the header, footer, and contact page.</CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-3">
               <div className="flex flex-col sm:flex-row justify-center items-stretch sm:items-center gap-4 w-full " >
                 <PhoneSettingField label="Phone Number" className="w-full" settingKey="site.phone" value={settings["site.phone"] ?? ""} onChange={handleSettingChange} />
                 <SettingField label="Email Address" className="w-full" settingKey="site.email" value={settings["site.email"] ?? ""} onChange={handleSettingChange} />
@@ -370,7 +380,7 @@ export default function ContentTab() {
               <CardTitle>Footer Data</CardTitle>
               <CardDescription>Description and social links shown in the footer.</CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-3">
               <SettingField label="Footer Description" settingKey="site.footerText" value={settings["site.footerText"] ?? ""} multiline onChange={handleSettingChange} />
               <SettingField label="Facebook URL" settingKey="site.facebook" value={settings["site.facebook"] ?? ""} onChange={handleSettingChange} />
               <SettingField label="Instagram URL" settingKey="site.instagram" value={settings["site.instagram"] ?? ""} onChange={handleSettingChange} />
@@ -386,10 +396,12 @@ export default function ContentTab() {
                 <CardTitle>Value Propositions</CardTitle>
                 <CardDescription>The four selling points shown on the homepage.</CardDescription>
               </CardHeader>
-              <CardContent className="space-y-4">
-                {["value.direct-dealer-pricing", "value.on-site-installation", "value.commercial-grade-builds", "value.delhi-wide-delivery"].map((slug) => (
-                  <BlockField key={slug} label={slug.replace("value.", "").replace(/-/g, " ")} block={block(slug)} onChange={handleBlockChange} />
-                ))}
+              <CardContent>
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                  {["value.direct-dealer-pricing", "value.on-site-installation", "value.commercial-grade-builds", "value.delhi-wide-delivery"].map((slug) => (
+                    <BlockField key={slug} label={slug.replace("value.", "").replace(/-/g, " ")} block={block(slug)} onChange={handleBlockChange} />
+                  ))}
+                </div>
               </CardContent>
             </Card>
 
@@ -398,10 +410,12 @@ export default function ContentTab() {
                 <CardTitle>Testimonials</CardTitle>
                 <CardDescription>Customer quotes shown on the homepage. Title = Name · Location.</CardDescription>
               </CardHeader>
-              <CardContent className="space-y-4">
-                {["testimonial.1", "testimonial.2", "testimonial.3"].map((slug) => (
-                  <BlockField key={slug} label={`Testimonial ${slug.split(".")[1]}`} block={block(slug)} onChange={handleBlockChange} />
-                ))}
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+                  {["testimonial.1", "testimonial.2", "testimonial.3"].map((slug) => (
+                    <BlockField key={slug} label={`Testimonial ${slug.split(".")[1]}`} block={block(slug)} onChange={handleBlockChange} />
+                  ))}
+                </div>
               </CardContent>
             </Card>
 
@@ -410,10 +424,12 @@ export default function ContentTab() {
                 <CardTitle>About Page Timeline</CardTitle>
                 <CardDescription>Company history milestones shown on the About page.</CardDescription>
               </CardHeader>
-              <CardContent className="space-y-4">
-                {["timeline.1", "timeline.2", "timeline.3", "timeline.4"].map((slug, i) => (
-                  <BlockField key={slug} label={`Milestone ${i + 1}`} block={block(slug)} onChange={handleBlockChange} />
-                ))}
+              <CardContent>
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                  {["timeline.1", "timeline.2", "timeline.3", "timeline.4"].map((slug, i) => (
+                    <BlockField key={slug} label={`Milestone ${i + 1}`} block={block(slug)} onChange={handleBlockChange} />
+                  ))}
+                </div>
               </CardContent>
             </Card>
           </Fragment>

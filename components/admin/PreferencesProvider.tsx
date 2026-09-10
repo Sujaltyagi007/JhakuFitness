@@ -11,6 +11,8 @@ export interface UserPreferences {
   defaultPage?: string;
   currency?: string;
   timeFormat?: "12h" | "24h";
+  avatarStyle?: string;
+  avatarSeed?: string;
 }
 
 interface PreferencesContextType {
@@ -18,18 +20,19 @@ interface PreferencesContextType {
   updatePreferences: (newPrefs: Partial<UserPreferences>) => Promise<void>;
   isLoading: boolean;
   isHydrated: boolean;
-  /** The actually-applied light/dark mode — resolves "system" against the OS preference. */
   resolvedTheme: "light" | "dark";
 }
 
 const defaultPreferences: UserPreferences = {
-  theme: "system",
-  accentColor: "#fbbf24", // Default gold
+  theme: "light",
+  accentColor: "#fbbf24",
   density: "comfortable",
   defaultPage: "analytics",
   currency: "INR",
   timeFormat: "12h",
 };
+
+const LOCAL_STORAGE_KEY = "admin-preferences";
 
 const PreferencesContext = createContext<PreferencesContextType | undefined>(undefined);
 
@@ -38,15 +41,40 @@ export function PreferencesProvider({ children }: { children: ReactNode }) {
   const [preferences, setPreferences] = useState<UserPreferences>(defaultPreferences);
   const [isLoading, setIsLoading] = useState(false);
   const [resolvedTheme, setResolvedTheme] = useState<"light" | "dark">("light");
-  const isHydrated = status !== "loading";
+  const [isLocalLoaded, setIsLocalLoaded] = useState(false);
+  const isHydrated = status !== "loading" && isLocalLoaded;
 
+  // 1. On mount, try to restore from localStorage so the login screen gets the theme immediately
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem(LOCAL_STORAGE_KEY);
+      if (stored) {
+        setPreferences((prev) => ({ ...prev, ...JSON.parse(stored) }));
+      }
+    } catch (err) {
+      console.warn("Failed to parse preferences from localStorage", err);
+    } finally {
+      setIsLocalLoaded(true);
+    }
+  }, []);
+
+  // 2. When session loads, override with DB preferences (and sync back to localStorage)
   useEffect(() => {
     if (session?.user && (session.user as any).preferences) {
       const userPrefs = (session.user as any).preferences;
-      setPreferences((prev) => ({ ...prev, ...userPrefs }));
+      setPreferences((prev) => {
+        const merged = { ...prev, ...userPrefs };
+        try {
+          localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(merged));
+        } catch (e) {
+          // ignore
+        }
+        return merged;
+      });
     }
   }, [session]);
 
+  // 3. Apply styles based on preferences
   useEffect(() => {
     const root = document.documentElement;
     const isDark = preferences.theme === "dark" || (preferences.theme === "system" && window.matchMedia("(prefers-color-scheme: dark)").matches);
@@ -81,10 +109,19 @@ export function PreferencesProvider({ children }: { children: ReactNode }) {
     setPreferences(updated);
 
     try {
-      await updatePreferencesApi(newPrefs);
-      await update({ preferences: updated });
+      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(updated));
+    } catch (e) { }
+
+    try {
+      if (session) {
+        await updatePreferencesApi(newPrefs);
+        await update({ preferences: updated });
+      }
     } catch (error) {
       setPreferences(previous);
+      try {
+        localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(previous));
+      } catch (e) { }
       throw error;
     } finally {
       setIsLoading(false);

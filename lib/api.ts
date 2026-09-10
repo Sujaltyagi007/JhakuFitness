@@ -75,7 +75,23 @@ export interface ProductPayload {
     colorwayAccent?: string;
 }
 
+export interface ProductsPage {
+    products: unknown[];
+    total: number;
+    page: number;
+    pageSize: number;
+    totalPages: number;
+}
+
 export const getProducts = () => apiGet<unknown[]>("/api/admin/products");
+export const getProductsPage = (params: { page: number; pageSize?: number; search?: string }) => {
+    const qs = new URLSearchParams({
+        page: String(params.page),
+        pageSize: String(params.pageSize ?? 10),
+    });
+    if (params.search) qs.set("search", params.search);
+    return apiGet<ProductsPage>(`/api/admin/products?${qs.toString()}`);
+};
 export const createProduct = (payload: ProductPayload) => apiPost<unknown>("/api/admin/products", payload);
 export const updateProduct = (id: string, payload: Partial<ProductPayload>) => apiPatch<unknown>(`/api/admin/products/${id}`, payload);
 export const deleteProduct = (id: string) => apiDelete<{ ok: boolean }>(`/api/admin/products/${id}`);

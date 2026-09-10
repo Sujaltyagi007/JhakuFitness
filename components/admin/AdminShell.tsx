@@ -34,17 +34,17 @@ interface NavItemProps {
 function NavItem({ item, activeId, onNav }: NavItemProps) {
   const active = activeId === item.id;
   const Icon = item.icon;
-  const base = "group relative flex w-full items-center gap-3 rounded-lg px-3 py-2 text-[13px] font-medium transition-colors duration-100 " + (active ? "text-[#111] font-semibold" : "text-[#6b6b6b] hover:bg-black/[0.04] hover:text-[#111]");
+  const base = "group relative flex w-full items-center gap-3 rounded-lg px-3 py-2 text-[13px] font-medium transition-colors duration-100 " + (active ? "text-gold-deep font-semibold" : "text-[#6b6b6b] hover:bg-black/[0.04] hover:text-[#111]");
 
   const inner = (
     <Fragment>
       {active && (
-        <motion.span layoutId="nav-pill" className="absolute inset-0 rounded-lg bg-white shadow-sm border border-black/4" style={{ zIndex: 0 }} transition={{ type: "spring", stiffness: 380, damping: 32 }} />
+        <motion.span layoutId="nav-pill" className="absolute inset-0 rounded-lg bg-white shadow-sm border border-gold/30 border-l-[3px] border-l-gold" style={{ zIndex: 0 }} transition={{ type: "spring", stiffness: 380, damping: 32 }} />
       )}
-      <Icon size={15} className={`relative z-10 ${active ? "text-[#111]" : "text-[#9b9b9b] group-hover:text-[#444]"}`} />
+      <Icon size={15} className={`relative z-10 ${active ? "text-gold-deep" : "text-[#9b9b9b] group-hover:text-[#444]"}`} />
       <span className="relative z-10 flex-1 text-left leading-none">{item.label}</span>
       {item.badge && (
-        <span className={`relative z-10 rounded-md px-1.5 py-0.5 text-[10px] font-bold tabular-nums leading-none ${active ? "bg-[#f4f4f5] text-[#444]" : "bg-black/4 text-[#888]"}`}>
+        <span className={`relative z-10 rounded-md px-1.5 py-0.5 text-[10px] font-bold tabular-nums leading-none ${active ? "bg-gold/15 text-gold-deep" : "bg-black/4 text-[#888]"}`}>
           {item.badge}
         </span>
       )}
@@ -191,11 +191,11 @@ export default function AdminShell({ navItems, activeId, onSelect, onNavigate, o
   const secondaryItems = navItems.slice(5);
 
   return (
-    <div className="flex h-screen bg-[#f4f4f5] overflow-hidden font-sans">
-      {sidebarOpen && (<div className="fixed inset-0 z-30 bg-black/20 backdrop-blur-[2px] lg:hidden" onClick={() => setSidebarOpen(false)} />)}
-      <aside className={`fixed inset-y-0 left-0 z-40 flex w-64 flex-col bg-[#f4f4f5] transition-transform duration-300 ease-in-out lg:relative lg:translate-x-0 lg:z-auto ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}`}>
+    <div className="flex h-dvh w-full bg-[#f4f4f5] overflow-hidden font-sans relative">
+      {sidebarOpen && (<div className="fixed inset-0 z-45 bg-black/20 backdrop-blur-[2px] lg:hidden" onClick={() => setSidebarOpen(false)} />)}
+      <aside className={`fixed inset-y-0 left-0 z-50 flex w-64 flex-col bg-[#f4f4f5] transition-transform duration-300 ease-in-out lg:relative lg:translate-x-0 lg:z-auto ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}`}>
         <div className="flex h-13 items-center gap-2.5 px-4 shrink-0">
-          <div className="flex h-7 w-7 items-center justify-center rounded-md bg-[#1a1a1a] text-white shrink-0">
+          <div className="flex h-7 w-7 items-center justify-center rounded-md bg-gold text-ink shrink-0">
             <Dumbbell size={13} />
           </div>
           <span className="text-[13px] font-bold text-[#111] tracking-tight leading-none truncate">Jakhu Fitness</span>
@@ -231,7 +231,7 @@ export default function AdminShell({ navItems, activeId, onSelect, onNavigate, o
         </div>
       </aside>
 
-      <div className="flex flex-1 flex-col min-w-0 overflow-hidden">
+      <div className="flex flex-1 flex-col min-w-0 overflow-hidden h-full">
         <header className="flex h-13 shrink-0 items-center gap-3 bg-[#f4f4f5] px-4 lg:px-6">
           <button onClick={() => setSidebarOpen(true)} className="rounded-md p-1.5 text-[#999] hover:bg-black/4 hover:text-[#111] transition-colors lg:hidden" aria-label="Open sidebar">
             <Menu size={16} />
@@ -239,7 +239,7 @@ export default function AdminShell({ navItems, activeId, onSelect, onNavigate, o
           <div className="flex items-center gap-1.5 min-w-0">
             <span className="text-[12px] text-[#aaa]">Admin</span>
             <ChevronRight size={11} className="text-[#ccc] shrink-0" />
-            <span className="text-[13px] font-semibold text-[#111] truncate">{activeItem.label}</span>
+            <span className="text-[13px] font-semibold text-gold-deep truncate">{activeItem.label}</span>
           </div>
           <div className="ml-auto flex items-center gap-4">
             <div className="flex items-center gap-2">
@@ -268,7 +268,7 @@ export default function AdminShell({ navItems, activeId, onSelect, onNavigate, o
                 </button>
                 <AnimatePresence>
                   {isNotifOpen && (
-                    <motion.div initial={{ opacity: 0, y: 5, scale: 0.95 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 5, scale: 0.95 }} transition={{ duration: 0.15 }} className="absolute right-0 top-full mt-2 w-80 overflow-hidden rounded-xl bg-white shadow-[0_10px_40px_-10px_rgba(0,0,0,0.15)] ring-1 ring-black/5 z-50">
+                    <motion.div initial={{ opacity: 0, y: 5, scale: 0.95 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 5, scale: 0.95 }} transition={{ duration: 0.15 }} className="absolute right-0 top-full mt-2 w-80 max-w-[calc(100vw-32px)] overflow-hidden rounded-xl bg-white shadow-[0_10px_40px_-10px_rgba(0,0,0,0.15)] ring-1 ring-black/5 z-50">
                       <div className="border-b border-black/5 bg-gray-50/80 px-4 py-3">
                         <h3 className="text-sm font-semibold text-gray-900">Notifications</h3>
                       </div>
@@ -294,9 +294,9 @@ export default function AdminShell({ navItems, activeId, onSelect, onNavigate, o
             </div>
           </div>
         </header>
-        <div className="flex-1 overflow-hidden p-2 pt-0 lg:p-4 lg:pl-0 lg:pt-0">
-          <main className="h-full overflow-y-auto bg-white rounded-2xl shadow-[0_0_0_1px_rgba(0,0,0,0.04),0_4px_12px_rgba(0,0,0,0.02)]">
-            <div className="mx-auto max-w-7xl px-4 py-6 lg:px-8 lg:py-8">
+        <div className="flex-1 overflow-hidden p-2 pt-0 lg:p-4 lg:pl-0 lg:pt-0 pb-safe">
+          <main className="h-full overflow-y-auto bg-white rounded-2xl shadow-[0_0_0_1px_rgba(0,0,0,0.04),0_4px_12px_rgba(0,0,0,0.02)] overscroll-y-contain">
+            <div className="mx-auto max-w-7xl px-4 py-6 pb-24 lg:px-8 lg:py-8 lg:pb-12">
               {children}
             </div>
           </main>
