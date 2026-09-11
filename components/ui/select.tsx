@@ -75,7 +75,7 @@ export function Select({ value, onValueChange, children, className, disabled, al
   );
 }
 
-export interface SelectTriggerProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {}
+export interface SelectTriggerProps extends React.ButtonHTMLAttributes<HTMLButtonElement> { }
 
 export const SelectTrigger = React.forwardRef<HTMLButtonElement, SelectTriggerProps>(
   ({ className, children, disabled, ...props }, ref) => {
@@ -86,19 +86,7 @@ export const SelectTrigger = React.forwardRef<HTMLButtonElement, SelectTriggerPr
       else if (ref) ref.current = node;
     }, [ref, triggerRef]);
     return (
-      <button
-        ref={setRefs}
-        type="button"
-        aria-haspopup="listbox"
-        aria-expanded={open}
-        disabled={disabled}
-        onClick={() => setOpen(!open)}
-        className={cn(
-          "flex h-11 w-full items-center justify-between gap-2 rounded-xl border border-ink/15 bg-white px-3.5 py-2 text-sm text-ink outline-none transition-colors focus-visible:border-gold focus-visible:ring-2 focus-visible:ring-gold/30 disabled:cursor-not-allowed disabled:opacity-50",
-          className
-        )}
-        {...props}
-      >
+      <button ref={setRefs} type="button" aria-haspopup="listbox" aria-expanded={open} disabled={disabled} onClick={() => setOpen(!open)} className={cn("flex h-11 w-full items-center justify-between gap-2 rounded-xl border border-theme-border bg-theme-surface backdrop-blur-md px-3.5 py-2 text-sm text-theme-surface-text outline-none transition-colors focus-visible:border-gold focus-visible:ring-2 focus-visible:ring-gold/30 disabled:cursor-not-allowed disabled:opacity-50", className)} {...props}>
         {children}
         <ChevronDown className={cn("h-4 w-4 shrink-0 text-steel transition-transform duration-150", open && "rotate-180")} />
       </button>
@@ -110,7 +98,7 @@ SelectTrigger.displayName = "SelectTrigger";
 export function SelectValue({ placeholder, className }: { placeholder?: string; className?: string }) {
   const { value, labels } = useSelectContext("SelectValue");
   const label = labels[value];
-  return <span className={cn("truncate text-left", !label && "text-steel/70", className)}>{label ?? placeholder ?? value}</span>;
+  return <span className={cn("truncate text-left", !label && "opacity-60", className)}>{label ?? placeholder ?? value}</span>;
 }
 
 interface SelectContentPosition {
@@ -143,12 +131,7 @@ export function SelectContent({ children, className }: { children: React.ReactNo
       const flipped = spaceBelow < Math.min(MAX_LIST_HEIGHT, 160) && spaceAbove > spaceBelow;
 
       setPosition({
-        ...(flipped
-          ? { bottom: window.innerHeight - rect.top + GAP }
-          : { top: rect.bottom + GAP }),
-        left: align === "end" ? rect.right - rect.width : rect.left,
-        width: rect.width,
-        maxHeight: Math.max(120, Math.min(MAX_LIST_HEIGHT, flipped ? spaceAbove : spaceBelow)),
+        ...(flipped ? { bottom: window.innerHeight - rect.top + GAP } : { top: rect.bottom + GAP }), left: align === "end" ? rect.right - rect.width : rect.left, width: rect.width, maxHeight: Math.max(120, Math.min(MAX_LIST_HEIGHT, flipped ? spaceAbove : spaceBelow)),
       });
     }
 
@@ -164,21 +147,9 @@ export function SelectContent({ children, className }: { children: React.ReactNo
   if (!mounted || !open || !position) return null;
 
   return createPortal(
-    <div
-      ref={contentRef}
-      role="listbox"
-      style={{
-        top: position.top,
-        bottom: position.bottom,
-        left: position.left,
-        width: position.width,
-        maxHeight: position.maxHeight,
-      }}
-      className={cn(
-        "fixed z-50 overflow-auto rounded-xl border border-ink/10 bg-white p-1 shadow-lg shadow-black/10",
-        className
-      )}
-    >
+    <div ref={contentRef} role="listbox" style={{
+      top: position.top, bottom: position.bottom, left: position.left, width: position.width, maxHeight: position.maxHeight,
+    }} className={cn("fixed z-50 overflow-auto rounded-xl border border-theme-border bg-theme-surface backdrop-blur-md p-1 shadow-lg shadow-black/10", className)}>
       {children}
     </div>,
     document.body
@@ -196,26 +167,10 @@ export function SelectItem({ value: itemValue, children, className, disabled }: 
   const { value, onValueChange, setOpen, registerLabel } = useSelectContext("SelectItem");
   const selected = value === itemValue;
 
-  React.useEffect(() => {
-    registerLabel(itemValue, children);
-  }, [itemValue, children, registerLabel]);
+  React.useEffect(() => { registerLabel(itemValue, children) }, [itemValue, children, registerLabel]);
 
   return (
-    <div
-      role="option"
-      aria-selected={selected}
-      onClick={() => {
-        if (disabled) return;
-        onValueChange(itemValue);
-        setOpen(false);
-      }}
-      className={cn(
-        "flex cursor-pointer items-center justify-between gap-2 rounded-lg px-3 py-2 text-sm text-ink transition-colors hover:bg-stone-100",
-        selected && "font-semibold",
-        disabled && "pointer-events-none opacity-50",
-        className
-      )}
-    >
+    <div role="option" aria-selected={selected} onClick={() => { if (disabled) return; onValueChange(itemValue); setOpen(false); }} className={cn("flex cursor-pointer items-center justify-between gap-2 rounded-lg px-3 py-2 text-sm transition-colors hover:bg-theme-surface-hover", selected && "font-semibold", disabled && "pointer-events-none opacity-50", className)}>
       <span className="truncate">{children}</span>
       {selected && <Check className="h-4 w-4 shrink-0 text-gold-deep" />}
     </div>

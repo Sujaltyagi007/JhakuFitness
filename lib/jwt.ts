@@ -8,13 +8,8 @@ if (process.env.NODE_ENV === "production" && !process.env.JWT_SECRET) {
 
 function base64UrlEncode(bytes: Uint8Array): string {
   let binary = "";
-  for (let i = 0; i < bytes.byteLength; i++) {
-    binary += String.fromCharCode(bytes[i]);
-  }
-  return btoa(binary)
-    .replace(/\+/g, "-")
-    .replace(/\//g, "_")
-    .replace(/=+$/, "");
+  for (let i = 0; i < bytes.byteLength; i++)  binary += String.fromCharCode(bytes[i]);
+  return btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
 }
 
 function base64UrlDecode(str: string): Uint8Array {
@@ -58,14 +53,10 @@ export async function signJWT(payload: Omit<AdminJWTPayload, "iat" | "exp" | "jt
   const header = { alg: "HS256", typ: "JWT" };
   const now = Math.floor(Date.now() / 1000);
   const fullPayload: AdminJWTPayload = {
-    ...payload,
-    iat: now,
-    exp: now + expiresInSeconds,
+    ...payload, iat: now, exp: now + expiresInSeconds,
     sub: typeof payload.sub === "string" ? payload.sub : "",
-    role: "admin",
-    jti: crypto.randomUUID()
+    role: "admin", jti: crypto.randomUUID()
   };
-
   const headerB64 = base64UrlEncode(stringToUint8(JSON.stringify(header)));
   const payloadB64 = base64UrlEncode(stringToUint8(JSON.stringify(fullPayload)));
   const dataToSign = `${headerB64}.${payloadB64}`;
@@ -84,10 +75,7 @@ export async function signJWT(payload: Omit<AdminJWTPayload, "iat" | "exp" | "jt
 export async function verifyJWT(token: string): Promise<AdminJWTPayload | null> {
   try {
     const parts = token.split(".");
-    if (parts.length !== 3) {
-      return null;
-    }
-
+    if (parts.length !== 3) return null;
     const [headerB64, payloadB64, signatureB64] = parts;
     const dataToVerify = `${headerB64}.${payloadB64}`;
     const signature = base64UrlDecode(signatureB64);
@@ -97,28 +85,14 @@ export async function verifyJWT(token: string): Promise<AdminJWTPayload | null> 
       signature as unknown as BufferSource,
       stringToUint8(dataToVerify) as unknown as BufferSource
     );
-
-    if (!isValid) {
-      return null;
-    }
-
+    if (!isValid) return null;
     const headerJson = uint8ToString(base64UrlDecode(headerB64));
     const header = JSON.parse(headerJson);
-    if (header.alg !== "HS256" || header.typ !== "JWT") {
-      return null;
-    }
-
+    if (header.alg !== "HS256" || header.typ !== "JWT") return null;
     const payloadJson = uint8ToString(base64UrlDecode(payloadB64));
     const payload: AdminJWTPayload = JSON.parse(payloadJson);
-
-    // Check expiration
     const now = Math.floor(Date.now() / 1000);
-    if (payload.exp && payload.exp < now) {
-      return null;
-    }
-
+    if (payload.exp && payload.exp < now) return null;
     return payload;
-  } catch {
-    return null;
-  }
+  } catch { return null; }
 }

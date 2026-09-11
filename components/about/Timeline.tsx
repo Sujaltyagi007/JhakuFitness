@@ -44,10 +44,10 @@ export default function Timeline() {
             <span className="absolute left-0 top-1 flex h-8 w-8 items-center justify-center rounded-full bg-ink border-2 border-gold text-xs font-bold text-gold shadow-lg shadow-gold/20 group-hover:scale-110 transition-transform">
               0{i + 1}
             </span>
-            <div className="rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-md transition-all group-hover:border-gold/40 max-w-2xl">
+            <div className="rounded-2xl border border-theme-border bg-theme-surface p-6 backdrop-blur-md transition-all group-hover:border-gold/40 max-w-2xl">
               <span className="text-xs font-bold uppercase tracking-wider text-gold">{step.year}</span>
-              <h3 className="mt-1 font-display text-lg font-bold text-white">{step.title}</h3>
-              <p className="mt-2 text-xs sm:text-sm leading-relaxed text-white/85 font-medium">{step.description}</p>
+              <h3 className="mt-1 font-display text-lg font-bold text-theme-text">{step.title}</h3>
+              <p className="mt-2 text-xs sm:text-sm leading-relaxed text-theme-muted font-medium">{step.description}</p>
             </div>
           </motion.div>
         ))}

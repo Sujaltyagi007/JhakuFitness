@@ -8,6 +8,7 @@ import { ToastProvider } from "@/components/ui/Toast";
 import { ThemeProvider } from "@/components/ui/ThemeContext";
 import LiveNotificationListener from "@/components/LiveNotificationListener";
 import { NotificationProvider } from "@/components/NotificationContext";
+import StorefrontChat from "@/components/chat/StorefrontChat";
 
 const outfit = Outfit({
   variable: "--font-outfit",
@@ -49,6 +50,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
               <Navbar phone={phone} />
               <main className="flex-1">{children}</main>
               <Footer />
+              <StorefrontChat />
               <LiveNotificationListener />
             </ToastProvider>
           </ThemeProvider>

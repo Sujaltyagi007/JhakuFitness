@@ -28,43 +28,47 @@ html[data-theme="dark"] {
 
 /* Light Theme */
 html[data-theme="light"] {
-  --ink: #1c1917; /* stone-900 */
-  --ink-soft: #292524; /* stone-800 */
+  --ink: #1c1917; 
+  --ink-soft: #292524;
   --gold: #b38b2d;
   --gold-bright: #d4a945;
   --gold-deep: #8c6a1e;
   --paper: #f8f8f6;
   --paper-dim: #edece8;
-  --steel: #57534e; /* stone-600 */
-  --steel-light: #78716c; /* stone-500 */
+  --steel: #57534e;
+  --steel-light: #78716c;
   --white: #111113;
   --bg-main: #f8f8f6;
-  --text-main: #1c1917; /* stone-900 */
-  --text-muted: rgba(28, 25, 23, 0.7); /* stone-900 with opacity */
+  --text-main: #1c1917; 
+  --text-muted: rgba(28, 25, 23, 0.7); 
   --card-bg: rgba(255, 255, 255, 0.9);
-  --card-border: rgba(28, 25, 23, 0.12); /* stone-900 with opacity */
+  --card-border: rgba(28, 25, 23, 0.12); 
   --surface-bg: rgba(248, 248, 246, 0.95);
-  --surface-text: #1c1917; /* stone-900 */
-  --surface-text-muted: rgba(28, 25, 23, 0.6); /* stone-900 with opacity */
-  --surface-hover: rgba(28, 25, 23, 0.05); /* stone-900 with opacity */
+  --surface-text: #1c1917; 
+  --surface-text-muted: rgba(28, 25, 23, 0.6); 
+  --surface-hover: rgba(28, 25, 23, 0.05); 
   --hero-scrim: linear-gradient(to bottom, transparent 0%, rgba(248, 248, 246, 0.95) 100%);
   color-scheme: light;
 }
 
-/* ─── Admin Panel Preferences ────────────────────────────────────────────
-   The admin panel ((withAuth) route group) is themed independently of the
-   public storefront's [data-theme] system above — its components use plain
-   Tailwind classes (bg-white, text-stone-900, ...) rather than the theme
-   vars. PreferencesProvider toggles `dark` / `density-compact` /
-   `density-spacious` classes on <html> from the signed-in user's saved
-   preferences; the rules below make those classes repaint the finite,
-   repeated set of literal classes the admin components already use. */
+.admin-ui {
+  --surface-bg: #ffffff;
+  --surface-hover: #f5f5f4;
+  --surface-text: #1c1917;
+  --text-muted: #78716c;
+  --card-border: #e5e5e5;
+}
+html.dark .admin-ui {
+  --surface-bg: #1f1f23;
+  --surface-hover: #2a2a2f;
+  --surface-text: #f4f4f5;
+  --text-muted: #a1a1aa;
+  --card-border: #35353b;
+}
+
 
 html.dark {
   color-scheme: dark;
-  /* Re-point the shared --ink/--steel text tokens (used across admin via
-     text-ink/text-steel/border-ink) to light values so text stays readable
-     against the dark surfaces below. */
   --ink: #f4f4f5;
   --steel: #a1a1aa;
   --paper: #232326;
@@ -75,7 +79,7 @@ html.dark body {
   background-color: #18181b;
 }
 
-/* Literal surface/text/border classes used throughout components/admin/** */
+
 html.dark .bg-white { background-color: #1f1f23; }
 html.dark .bg-stone-50 { background-color: #232327; }
 html.dark .bg-stone-100 { background-color: #2a2a2f; }
@@ -188,10 +192,6 @@ html.density-spacious .space-y-4 > :not([hidden]) ~ :not([hidden]) { margin-top:
   html.density-spacious .sm\:p-6 { padding: 2rem; }
 }
 
-/* CardHeader/CardContent/CardFooter pair p-4/sm:p-6 with a narrowed pb-3 or
-   pt-0 to tighten the header-to-content seam. The padding shorthand above
-   resets all four sides, silently re-widening that seam — reassert the
-   narrow side afterward so the seam stays tight at every density. */
 html.density-compact .pb-3,
 html.density-spacious .pb-3 { padding-bottom: 0.75rem; }
 html.density-compact .pt-0,

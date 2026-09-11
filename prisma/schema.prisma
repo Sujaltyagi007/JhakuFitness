@@ -97,6 +97,9 @@ model User {
   lastLoginAt  DateTime?
   createdAt    DateTime   @default(now())
   updatedAt    DateTime   @updatedAt
+  conversations          Conversation[] @relation("ConversationClaimedBy")
+  internalChatsInitiated Conversation[] @relation("ConversationParticipantA")
+  internalChatsReceived  Conversation[] @relation("ConversationParticipantB")
 
   @@index([email])
   @@index([roleId])
@@ -131,5 +134,43 @@ model RolePermission {
   @@id([roleId, permissionId])
   @@index([roleId])
   @@index([permissionId])
+}
+
+// Chat System
+enum ConversationType {
+  SUPPORT
+  INTERNAL
+}
+
+model Conversation {
+  id             String           @id @default(cuid())
+  type           ConversationType @default(SUPPORT)
+  visitorId      String?          
+  adminId        String?
+  admin          User?            @relation("ConversationClaimedBy", fields: [adminId], references: [id])
+  participantAId String?          
+  participantA   User?            @relation("ConversationParticipantA", fields: [participantAId], references: [id])
+  participantBId String?         
+  participantB   User?            @relation("ConversationParticipantB", fields: [participantBId], references: [id])
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+  messages       Message[]
+
+  @@index([visitorId])
+  @@index([participantAId])
+  @@index([participantBId])
+}
+
+model Message {
+  id             String       @id @default(cuid())
+  content        String
+  createdAt      DateTime     @default(now())
+  isRead         Boolean      @default(false)
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  senderType     String       
+  senderId       String       
+  
+  @@index([conversationId])
 }
 

@@ -6,6 +6,7 @@ import { AuthProvider } from "@/components/AuthProvider";
 import { PreferencesProvider } from "@/components/admin/PreferencesProvider";
 import LiveNotificationListener from "@/components/LiveNotificationListener";
 import { NotificationProvider } from "@/components/NotificationContext";
+import AdminChatBar from "@/components/chat/AdminChatBar";
 
 const outfit = Outfit({
     variable: "--font-outfit",
@@ -37,12 +38,13 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
     return (
         <html lang="en" data-scroll-behavior="smooth" className={`${outfit.variable} ${inter.variable} h-full`}>
-            <body className="h-full bg-[#f8f8f6] text-ink antialiased overflow-hidden">
+            <body className="h-full bg-[#f8f8f6] text-ink antialiased overflow-hidden admin-ui">
                 <NotificationProvider>
                     <AuthProvider>
                         <PreferencesProvider>
                             <ToastProvider>
                                 <main className="h-full">{children}</main>
+                                <AdminChatBar />
                                 <LiveNotificationListener />
                             </ToastProvider>
                         </PreferencesProvider>

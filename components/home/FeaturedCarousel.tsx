@@ -15,18 +15,18 @@ export default function FeaturedCarousel({ products }: FeaturedCarouselProps) {
   if (products.length === 0) return null;
 
   return (
-    <section className="border-y border-ink/8 bg-white py-10 ">
+    <section className="border-y border-theme-border bg-theme-bg py-10 ">
       <Container>
         <div className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
           <SectionHeading eyebrow="Featured this month" title="Our most requested equipment"
-            description="A shortlist pulled from what studios and home gyms across Delhi are asking for right now." mode="light" />
+            description="A shortlist pulled from what studios and home gyms across Delhi are asking for right now." />
           <div className="flex gap-2">
             <button onClick={() => scroll(-1)} aria-label="Scroll left"
-              className="flex h-10 w-10 items-center justify-center rounded-full border border-ink/15 text-ink transition-colors hover:border-ink/40">
+              className="flex h-10 w-10 items-center justify-center rounded-full border border-theme-border text-theme-text transition-colors hover:bg-theme-surface-hover hover:border-theme-text">
               <ChevronLeft size={18} />
             </button>
             <button onClick={() => scroll(1)} aria-label="Scroll right"
-              className="flex h-10 w-10 items-center justify-center rounded-full border border-ink/15 text-ink transition-colors hover:border-ink/40">
+              className="flex h-10 w-10 items-center justify-center rounded-full border border-theme-border text-theme-text transition-colors hover:bg-theme-surface-hover hover:border-theme-text">
               <ChevronRight size={18} />
             </button>
           </div>

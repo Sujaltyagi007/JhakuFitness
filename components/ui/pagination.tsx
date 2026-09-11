@@ -51,9 +51,9 @@ const PaginationLink = ({
   <button
     aria-current={isActive ? "page" : undefined}
     className={cn(
-      "inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/40 disabled:pointer-events-none disabled:opacity-50 hover:bg-theme-surface-hover hover:text-ink",
+      "inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/40 disabled:pointer-events-none disabled:opacity-50 hover:bg-theme-surface-hover hover:text-gold",
       size === "icon" ? "h-9 w-9" : "h-9 px-4",
-      isActive ? "border border-ink bg-theme-surface-hover text-ink" : "bg-transparent text-ink",
+      isActive ? "border border-gold bg-gold text-ink font-semibold shadow-md shadow-gold/20" : "bg-transparent text-theme-text",
       className
     )}
     {...props}
@@ -99,7 +99,7 @@ const PaginationEllipsis = ({
 }: React.ComponentProps<"span">) => (
   <span
     aria-hidden
-    className={cn("flex h-9 w-9 items-center justify-center", className)}
+    className={cn("flex h-9 w-9 items-center justify-center text-theme-muted", className)}
     {...props}
   >
     <MoreHorizontal className="h-4 w-4" />

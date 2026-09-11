@@ -5,6 +5,16 @@ import { CheckCircle2, Send } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import CountrieCodeBtn from "@/components/ui/CountrieCodeBtn";
 import { COUNTRIES, type Country } from "@/lib/hooks/Countrielist";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+
+const INTEREST_OPTIONS = [
+  "Pin Loaded Series",
+  "Hammer Plate-Loaded",
+  "Benches & Utility Racks",
+  "Multi-Jungle Cable Crossover",
+  "Custom Full Commercial Gym Setup",
+  "Luxury Home Gym",
+];
 
 interface FormState {
   name: string;
@@ -46,14 +56,10 @@ export default function ContactForm({ phone = "+91 93110 37556" }: { phone?: str
       else if (!form.email.includes("@")) next.email = "That email doesn't look right.";
     }
 
-    if (form.message && form.message.length > 300) {
-      next.message = "Message must not exceed 300 characters.";
-    }
+    if (form.message && form.message.length > 300) { next.message = "Message must not exceed 300 characters."; }
 
     setErrors(next);
-    if (Object.keys(next).length > 0) {
-      toast.error("Please complete required form fields.");
-    }
+    if (Object.keys(next).length > 0) { toast.error("Please complete required form fields."); }
     return Object.keys(next).length === 0;
   };
 
@@ -110,12 +116,7 @@ export default function ContactForm({ phone = "+91 93110 37556" }: { phone?: str
         />
         <AnimatePresence>
           {errors.email && (
-            <motion.p
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="mt-1.5 text-xs text-red-400 font-medium"
-            >
+            <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="mt-1.5 text-xs text-red-400 font-medium">
               {errors.email}
             </motion.p>
           )}
@@ -124,14 +125,16 @@ export default function ContactForm({ phone = "+91 93110 37556" }: { phone?: str
 
       <div>
         <label className="text-xs font-semibold px-3 uppercase tracking-wider text-theme-muted">Equipment Series / Inquiry Type</label>
-        <select value={form.interest} onChange={(e) => update("interest", e.target.value)} className="mt-0 w-full rounded-2xl border border-theme-border bg-theme-bg px-4 py-3 text-sm text-theme-text focus:border-gold focus:outline-none">
-          <option>Pin Loaded Series</option>
-          <option>Hammer Plate-Loaded</option>
-          <option>Benches &amp; Utility Racks</option>
-          <option>Multi-Jungle Cable Crossover</option>
-          <option>Custom Full Commercial Gym Setup</option>
-          <option>Luxury Home Gym</option>
-        </select>
+        <Select value={form.interest} onValueChange={(v) => update("interest", v)} className="mt-1 w-full">
+          <SelectTrigger className="h-auto rounded-2xl bg-theme-bg px-4 py-3 text-sm">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {INTEREST_OPTIONS.map((opt) => (
+              <SelectItem key={opt} value={opt}>{opt}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
 
       <div>

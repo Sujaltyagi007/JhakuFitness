@@ -24,7 +24,7 @@ export default function InteractiveFaq() {
   const [openIdx, setOpenIdx] = useState<number | null>(0);
 
   return (
-    <section className="bg-theme-surface py-24 sm:py-32 border-t border-theme-border">
+    <section className="bg-theme-surface py-24 border-t border-theme-border">
       <Container>
         <div className="mx-auto max-w-3xl">
           <div className="text-center">

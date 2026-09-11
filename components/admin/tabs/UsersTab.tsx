@@ -10,7 +10,7 @@ import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@
 import { Portal } from "@/components/ui/Portal";
 import CountrieCodeBtn from "@/components/ui/CountrieCodeBtn";
 import { COUNTRIES, type Country, parsePhone, formatPhone, validatePhoneNumber } from "@/lib/hooks/Countrielist";
-import { Users, UserPlus, Search, Shield, ShieldAlert, Edit2, Trash2, CheckCircle, XCircle, AlertTriangle, RefreshCw, Key, } from "lucide-react";
+import { Users, UserPlus, Search, Shield, ShieldAlert, Edit2, Trash2, CheckCircle, XCircle, AlertTriangle, RefreshCw, Key, MessageCircle } from "lucide-react";
 
 /** Wraps a form field so it can shake + show an inline error, driven entirely by our own (Zod) validation rather than native HTML constraint validation. Remounting on `shakeToken` change is what makes the shake replay on every failed attempt, even if the field's error message didn't change. */
 function ShakeField({ error, shakeToken, children }: { error?: string; shakeToken: number; children: React.ReactNode }) {
@@ -312,18 +312,13 @@ export function UsersTab() {
                     </td>
                     <td className="py-3.5 px-4 text-right">
                       <div className="flex items-center justify-end gap-2">
-                        <button
-                          onClick={() => handleOpenEdit(u)}
-                          className="p-1.5 rounded-lg border border-stone-200 hover:bg-stone-100 :bg-stone-800 text-stone-600 transition-colors"
-                          title="Edit User"
-                        >
+                        <button onClick={() => window.dispatchEvent(new CustomEvent('open-admin-chat', { detail: { targetUserId: u.id, name: u.name } }))} className="p-1.5 rounded-lg border border-stone-200 hover:bg-stone-100 :bg-stone-800 text-stone-600 transition-colors" title="Message User">
+                          <MessageCircle className="w-3.5 h-3.5" />
+                        </button>
+                        <button onClick={() => handleOpenEdit(u)} className="p-1.5 rounded-lg border border-stone-200 hover:bg-stone-100 :bg-stone-800 text-stone-600 transition-colors" title="Edit User">
                           <Edit2 className="w-3.5 h-3.5" />
                         </button>
-                        <button
-                          onClick={() => handleDelete(u)}
-                          className="p-1.5 rounded-lg border border-rose-200 hover:bg-rose-50 :bg-rose-950/30 text-rose-600 transition-colors"
-                          title="Delete User"
-                        >
+                        <button onClick={() => handleDelete(u)} className="p-1.5 rounded-lg border border-rose-200 hover:bg-rose-50 :bg-rose-950/30 text-rose-600 transition-colors" title="Delete User">
                           <Trash2 className="w-3.5 h-3.5" />
                         </button>
                       </div>

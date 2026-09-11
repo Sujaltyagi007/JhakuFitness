@@ -239,8 +239,6 @@ export default function AccountTab({ user, activeTab = "profile", onTabChange }:
             </div>
           </div>
         )}
-
-        {/* PREFERENCES */}
         {activeTab === "preferences" && (
           <div className="bg-white rounded-2xl border border-stone-200 shadow-sm p-6 space-y-6 relative overflow-hidden">
             {isSavingPrefs && (
@@ -257,8 +255,8 @@ export default function AccountTab({ user, activeTab = "profile", onTabChange }:
                 <div>
                   <label className="block text-xs font-semibold text-stone-700 mb-1.5 uppercase tracking-wide">Theme Mode</label>
                   <Select value={preferences.theme ?? "system"} onValueChange={(v) => handlePrefChange("theme", v)}>
-                    <SelectTrigger><SelectValue /></SelectTrigger>
-                    <SelectContent>
+                    <SelectTrigger className="bg-white border-stone-200 text-stone-900 shadow-sm hover:border-stone-300 focus:ring-stone-500 focus:border-stone-500"><SelectValue /></SelectTrigger>
+                    <SelectContent className="bg-white border-stone-200 text-stone-900 shadow-lg">
                       <SelectItem value="light">Light Mode</SelectItem>
                       <SelectItem value="dark">Dark Mode</SelectItem>
                       <SelectItem value="system">System Default</SelectItem>
@@ -305,8 +303,7 @@ export default function AccountTab({ user, activeTab = "profile", onTabChange }:
                       const isSelected = (preferences.density ?? "comfortable") === d.value;
                       return (
                         <button key={d.value} type="button" onClick={() => handlePrefChange("density", d.value)}
-                          className={`flex flex-col items-center gap-2 rounded-xl border-2 px-2 py-3 transition-colors ${isSelected ? "border-gold bg-gold/10" : "border-stone-200 hover:border-stone-300"}`}
-                        >
+                          className={`flex flex-col items-center gap-2 rounded-xl border-2 px-2 py-3 transition-colors ${isSelected ? "border-gold bg-gold/10" : "border-stone-200 hover:border-stone-300"}`}>
                           <div className="flex w-8 flex-col" style={{ gap: d.gaps[0] }}>
                             <span className={`h-1 rounded-full ${isSelected ? "bg-gold-deep" : "bg-stone-300"}`} />
                             <span className={`h-1 rounded-full ${isSelected ? "bg-gold-deep" : "bg-stone-300"}`} />
@@ -321,8 +318,8 @@ export default function AccountTab({ user, activeTab = "profile", onTabChange }:
                 <div>
                   <label className="block text-xs font-semibold text-stone-700 mb-1.5 uppercase tracking-wide">Default Landing Page</label>
                   <Select value={preferences.defaultPage ?? "analytics"} onValueChange={(v) => handlePrefChange("defaultPage", v)}>
-                    <SelectTrigger><SelectValue /></SelectTrigger>
-                    <SelectContent>
+                    <SelectTrigger className="bg-white border-stone-200 text-stone-900 shadow-sm hover:border-stone-300 focus:ring-stone-500 focus:border-stone-500"><SelectValue /></SelectTrigger>
+                    <SelectContent className="bg-white border-stone-200 text-stone-900 shadow-lg">
                       <SelectItem value="analytics">Analytics Dashboard</SelectItem>
                       <SelectItem value="inventory">Inventory</SelectItem>
                       <SelectItem value="users">User Management</SelectItem>
@@ -341,8 +338,8 @@ export default function AccountTab({ user, activeTab = "profile", onTabChange }:
                 <div>
                   <label className="block text-xs font-semibold text-stone-700 mb-1.5 uppercase tracking-wide">Currency format</label>
                   <Select value={preferences.currency ?? "INR"} onValueChange={(v) => handlePrefChange("currency", v)}>
-                    <SelectTrigger><SelectValue /></SelectTrigger>
-                    <SelectContent>
+                    <SelectTrigger className="bg-white border-stone-200 text-stone-900 shadow-sm hover:border-stone-300 focus:ring-stone-500 focus:border-stone-500"><SelectValue /></SelectTrigger>
+                    <SelectContent className="bg-white border-stone-200 text-stone-900 shadow-lg">
                       <SelectItem value="INR">Indian Rupee (₹)</SelectItem>
                       <SelectItem value="USD">US Dollar ($)</SelectItem>
                     </SelectContent>
@@ -351,8 +348,8 @@ export default function AccountTab({ user, activeTab = "profile", onTabChange }:
                 <div>
                   <label className="block text-xs font-semibold text-stone-700 mb-1.5 uppercase tracking-wide">Time format</label>
                   <Select value={preferences.timeFormat ?? "12h"} onValueChange={(v) => handlePrefChange("timeFormat", v)}>
-                    <SelectTrigger><SelectValue /></SelectTrigger>
-                    <SelectContent>
+                    <SelectTrigger className="bg-white border-stone-200 text-stone-900 shadow-sm hover:border-stone-300 focus:ring-stone-500 focus:border-stone-500"><SelectValue /></SelectTrigger>
+                    <SelectContent className="bg-white border-stone-200 text-stone-900 shadow-lg">
                       <SelectItem value="12h">12-hour (1:00 PM)</SelectItem>
                       <SelectItem value="24h">24-hour (13:00)</SelectItem>
                     </SelectContent>

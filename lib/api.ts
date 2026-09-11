@@ -83,6 +83,35 @@ export interface ProductsPage {
     totalPages: number;
 }
 
+export interface PublicProductSearchParams {
+    page: number;
+    pageSize?: number;
+    category?: string;
+    sort?: "featured" | "name" | "weight";
+    minWeight?: number;
+    search?: string;
+}
+
+export interface PublicProductsPage<T = unknown> {
+    products: T[];
+    total: number;
+    page: number;
+    pageSize: number;
+    totalPages: number;
+}
+
+export const getPublicProducts = <T = unknown>(params: PublicProductSearchParams) => {
+    const qs = new URLSearchParams({
+        page: String(params.page),
+        pageSize: String(params.pageSize ?? 9),
+    });
+    if (params.category && params.category !== "all") qs.set("category", params.category);
+    if (params.sort) qs.set("sort", params.sort);
+    if (params.minWeight && params.minWeight > 0) qs.set("minWeight", String(params.minWeight));
+    if (params.search) qs.set("search", params.search);
+    return apiGet<PublicProductsPage<T>>(`/api/products?${qs.toString()}`);
+};
+
 export const getProducts = () => apiGet<unknown[]>("/api/admin/products");
 export const getProductsPage = (params: { page: number; pageSize?: number; search?: string }) => {
     const qs = new URLSearchParams({
@@ -184,3 +213,49 @@ export const getSiteInfo = () => apiGet<Record<string, string>>("/api/site-info"
 export const updateAccount = (payload: { name?: string; currentPassword?: string; newPassword?: string }) => apiPatch<{ success: boolean; user?: unknown; message?: string }>("/api/admin/account", payload);
 
 export const updatePreferences = (payload: Partial<UserPreferences>) => apiPatch<{ success: boolean; preferences: unknown }>("/api/admin/preferences", payload);
+
+export interface ChatMessage {
+    id: string;
+    content: string;
+    senderId: string;
+    senderType: "VISITOR" | "ADMIN";
+    conversationId: string;
+    createdAt: string;
+    isRead?: boolean;
+}
+
+export interface ChatParticipant {
+    id: string;
+    name: string;
+}
+
+export interface ChatConversationSummary {
+    id: string;
+    type: "SUPPORT" | "INTERNAL";
+    visitorId: string | null;
+    otherParticipant: ChatParticipant | null;
+    updatedAt: string;
+    messages: { content: string }[];
+}
+
+export interface ChatHistoryResponse {
+    messages: ChatMessage[];
+    conversationId?: string | null;
+    type?: "SUPPORT" | "INTERNAL";
+    otherParticipant?: ChatParticipant | null;
+    conversations?: ChatConversationSummary[];
+}
+
+export const getChatHistory = (params?: { visitorId?: string; targetUserId?: string; conversationId?: string; create?: boolean; limit?: number }) => {
+    const qs = new URLSearchParams();
+    if (params?.visitorId) qs.set("visitorId", params.visitorId);
+    if (params?.targetUserId) qs.set("targetUserId", params.targetUserId);
+    if (params?.conversationId) qs.set("conversationId", params.conversationId);
+    if (params?.create) qs.set("create", "true");
+    if (params?.limit) qs.set("limit", String(params.limit));
+    const queryString = qs.toString();
+    return apiGet<ChatHistoryResponse>(`/api/chat/history${queryString ? `?${queryString}` : ""}`);
+};
+
+export const sendChatMessage = (payload: { content: string; conversationId?: string; senderId?: string; senderType?: "VISITOR" | "ADMIN" }) =>
+    apiPost<{ success: boolean; message: ChatMessage }>("/api/chat/send", payload);
